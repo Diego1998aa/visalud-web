@@ -1,4 +1,5 @@
 :root {
+  color-scheme: light;
   --green: #008d7e;          /* Teal característico de 'salud' del logo */
   --green-leaf: #6eb926;     /* Verde hoja y vitalidad del isotipo */
   --green-emerald: #009347;  /* Verde esmeralda de la figura central */
@@ -9,8 +10,32 @@
   --muted: #4e6b66;          /* Texto secundario y descriptivo */
   --line: #d3e7e1;           /* Bordes y separadores sutiles */
   --white: #ffffff;
+  --bg-page: #f6fbfa;
+  --bg-card: #ffffff;
+  --bg-card-hover: #ffffff;
+  --bg-input: #ffffff;
   --shadow: 0 18px 50px rgba(0, 141, 126, 0.12);
   --shadow-sm: 0 4px 16px rgba(0, 141, 126, 0.08);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --green: #14b8a6;          /* Teal luminoso de alto contraste */
+  --green-leaf: #84cc16;     /* Verde vital visible */
+  --green-emerald: #10b981;  /* Esmeralda nítido */
+  --green-dark: #5eead4;     /* Menta/cyan luminoso para textos destacados */
+  --green-soft: rgba(20, 184, 166, 0.16); /* Acentos sutiles */
+  --green-light: #0d1716;    /* Fondo oscuro de secciones secundarias */
+  --ink: #f0fdfa;            /* Texto principal claro y descansado */
+  --muted: #94a3b8;          /* Texto secundario con óptimo contraste */
+  --line: rgba(255, 255, 255, 0.1); /* Bordes sutiles y elegantes */
+  --white: #132220;          /* Fondo de tarjetas y cajas */
+  --bg-page: #091211;        /* Fondo base del sitio web */
+  --bg-card: #132220;        /* Tarjetas y superficies elevadas */
+  --bg-card-hover: #182b28;  /* Hover en tarjetas */
+  --bg-input: #0f1c1a;       /* Inputs y buscadores */
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
 * {
@@ -26,7 +51,8 @@ html {
 body {
   font-family: Outfit, system-ui, sans-serif;
   color: var(--ink);
-  background: #f6fbfa;
+  background: var(--bg-page);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 a {
@@ -42,3 +68,4 @@ img {
 button {
   font: inherit;
 }
+

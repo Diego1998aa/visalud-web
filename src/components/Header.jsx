@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import ThemeToggle from './ThemeToggle.jsx'
 
 const links = [
   { href: '#inicio', label: 'Inicio' },
@@ -8,7 +9,7 @@ const links = [
   { href: '#contacto', label: 'Contacto' },
 ]
 
-export default function Header() {
+export default function Header({ theme = 'light', onToggleTheme }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
 
@@ -53,8 +54,11 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* Botón de acción destacado (CTA) */}
+        {/* Botón de acción destacado (CTA) y selector de tema */}
         <div className="header-actions">
+          {/* Selector de modo día / noche */}
+          <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+
           <a href="#contacto" className="btn-header-cta">
             <span>Solicitar profesional</span>
             <svg
@@ -102,6 +106,15 @@ export default function Header() {
               {link.label}
             </a>
           ))}
+
+          {/* Alternador de tema en menú móvil */}
+          <div className="mobile-drawer-theme">
+            <span className="drawer-theme-label">
+              <span>Tema actual: <strong>{theme === 'dark' ? 'Noche' : 'Día'}</strong></span>
+            </span>
+            <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+          </div>
+
           <a
             href="#contacto"
             className="btn-header-cta mobile-cta"
@@ -127,3 +140,4 @@ export default function Header() {
     </header>
   )
 }
+
