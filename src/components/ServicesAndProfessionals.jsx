@@ -1,4 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
+import { professionalsService } from '../services/professionalsService.js'
+import { defaultProfessionals } from '../data/defaultProfessionals.js'
 
 const servicesData = [
   {
@@ -87,161 +89,62 @@ const servicesData = [
   },
 ]
 
-const professionalsData = [
-  {
-    id: 'enfra-marcela-soto',
-    name: 'Enfra. Marcela Soto Oyarzún',
-    serviceId: 'cuidados-adulto-mayor',
-    serviceName: 'Cuidados Adulto Mayor',
-    specialty: 'Enfermera Universitaria - Gerontología y Cuidados Integrales',
-    regNumber: 'Reg. SIS N° 458921',
-    image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80',
-    address: 'Servicio a Domicilio en Osorno y Centro Clínico Visalud',
-    phone: '+56 9 8452 1190',
-    whatsapp: '56984521190',
-    attention: 'Lunes a Domingo (Visitas programadas y turnos)',
-    modality: 'A Domicilio en Osorno',
-    convenios: 'Particular con Boleta y Reembolso Isapre',
-    bio: 'Especialista en valoración integral del adulto mayor, prevención de escaras, control de fármacos y trato empático con la familia.',
-  },
-  {
-    id: 'tens-javier-cardenas',
-    name: 'TENS Javier Cárdenas Silva',
-    serviceId: 'inyecciones',
-    serviceName: 'Inyecciones y Tratamientos',
-    specialty: 'Técnico en Enfermería de Nivel Superior (TENS) Clínico',
-    regNumber: 'Reg. SIS N° 389412',
-    image: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80',
-    address: 'Los Carrera 1150, Centro Visalud / Servicio a Domicilio, Osorno',
-    phone: '+56 9 7619 4432',
-    whatsapp: '56976194432',
-    attention: 'Lunes a Sábado (08:00 - 20:00)',
-    modality: 'En Centro y a Domicilio',
-    convenios: 'Fonasa, Isapre y Particular',
-    bio: 'Administración rápida, estéril y prácticamente indolora de inyectables intramusculares, subcutáneos, neurobionta y antibióticos.',
-  },
-  {
-    id: 'enfra-claudia-morales',
-    name: 'Enfra. Claudia Morales Valenzuela',
-    serviceId: 'curaciones-de-heridas',
-    serviceName: 'Curaciones de Heridas',
-    specialty: 'Enfermera Especialista en Curación Simple y Avanzada',
-    regNumber: 'Reg. SIS N° 612840',
-    image: 'https://images.unsplash.com/photo-1594824813629-873b22e1a3bc?auto=format&fit=crop&w=600&q=80',
-    address: 'Manuel Rodríguez 850, Edificio Bicentenario Of. 402, Osorno',
-    phone: '+56 9 9345 6781',
-    whatsapp: '56993456781',
-    attention: 'Lunes a Viernes (08:30 - 19:00) y Urgencias Domiciliarias',
-    modality: 'Box Clínico y a Domicilio',
-    convenios: 'Fonasa, Isapre y Particular',
-    bio: 'Manejo experto de úlceras venosas, escaras, heridas quirúrgicas y retiro de suturas con apósitos hidrocoloides y técnica aséptica.',
-  },
-  {
-    id: 'tens-patricia-rivas',
-    name: 'TENS Patricia Rivas Muñoz',
-    serviceId: 'cuidados-adulto-mayor',
-    serviceName: 'Cuidados Adulto Mayor',
-    specialty: 'Cuidadora Certificada & TENS Adulto Mayor',
-    regNumber: 'Reg. SIS N° 524109',
-    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80',
-    address: 'Cobertura a domicilio en todo el radio urbano de Osorno',
-    phone: '+56 9 6523 8810',
-    whatsapp: '56965238810',
-    attention: 'Lunes a Domingo (Turnos diurnos, nocturnos y 24 horas)',
-    modality: '100% a Domicilio',
-    convenios: 'Particular con Boleta de Honorarios',
-    bio: 'Asistencia dedicada en aseo y confort, movilidad en cama, alimentación asistida, control glicémico y compañía respetuosa.',
-  },
-  {
-    id: 'enfra-camila-fuentes',
-    name: 'Enfra. Camila Fuentes Sepúlveda',
-    serviceId: 'inyecciones',
-    serviceName: 'Inyecciones y Tratamientos',
-    specialty: 'Enfermera Universitaria - Procedimientos Ambulatorios',
-    regNumber: 'Reg. SIS N° 701423',
-    image: 'https://images.unsplash.com/photo-1527613426441-4da17471b66d?auto=format&fit=crop&w=600&q=80',
-    address: 'Clínica Visalud, Bilbao 740 / Atención Domiciliaria, Osorno',
-    phone: '+56 9 8214 5567',
-    whatsapp: '56982145567',
-    attention: 'Lunes a Viernes (08:30 - 18:30)',
-    modality: 'Domicilio y Box Clínico',
-    convenios: 'Fonasa, Isapre y Particular',
-    bio: 'Instalación de vías venosas, sueroterapia, administración de fármacos inyectables y tomas de muestra con gran calidez humana.',
-  },
-  {
-    id: 'enfra-romina-alvarez',
-    name: 'Enfra. Romina Álvarez Delgado',
-    serviceId: 'curaciones-de-heridas',
-    serviceName: 'Curaciones de Heridas',
-    specialty: 'Enfermera Clínica - Manejo de Heridas Complejas y Ostomías',
-    regNumber: 'Reg. SIS N° 498315',
-    image: 'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=600&q=80',
-    address: 'Centro Médico Visalud, Los Carrera 1150, Piso 2, Osorno',
-    phone: '+56 9 7182 3349',
-    whatsapp: '56971823349',
-    attention: 'Lunes a Sábado (09:00 - 18:00)',
-    modality: 'Presencial y a Domicilio',
-    convenios: 'Fonasa, Isapre y Particular',
-    bio: 'Evaluación y tratamiento integral de pie diabético, heridas tórpidas, dehiscencias quirúrgicas y seguimiento continuo de cicatrización.',
-  },
-  {
-    id: 'klgo-diego-almonacid',
-    name: 'Klgo. Diego Almonacid Vera',
-    serviceId: 'cuidados-adulto-mayor',
-    serviceName: 'Cuidados Adulto Mayor',
-    specialty: 'Kinesiólogo Gerontológico - Movilidad y Prevención de Caídas',
-    regNumber: 'Reg. SIS N° 340918',
-    image: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=600&q=80',
-    address: 'Manuel Antonio Matta 620 / Atención a Domicilio, Osorno',
-    phone: '+56 9 8923 1144',
-    whatsapp: '56989231144',
-    attention: 'Lunes a Viernes (08:30 - 19:00)',
-    modality: 'Visita Domiciliaria en Osorno',
-    convenios: 'Fonasa e Isapre',
-    bio: 'Rehabilitación motriz, ejercicios respiratorios y estimulación física suave para personas mayores postradas o con movilidad reducida.',
-  },
-  {
-    id: 'tens-esteban-lagos',
-    name: 'TENS Esteban Lagos Barrientos',
-    serviceId: 'curaciones-de-heridas',
-    serviceName: 'Curaciones de Heridas',
-    specialty: 'TENS de Procedimientos & Retiro de Puntos',
-    regNumber: 'Reg. SIS N° 581204',
-    image: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=600&q=80',
-    address: 'Atención a Domicilio en Osorno y Alrededores',
-    phone: '+56 9 7455 2319',
-    whatsapp: '56974552319',
-    attention: 'Lunes a Domingo (08:00 - 20:00)',
-    modality: 'Servicio Domiciliario Express',
-    convenios: 'Fonasa y Particular',
-    bio: 'Curaciones planas, desinfección preventiva, recambio de apósitos y retiro de suturas con técnica aséptica certificada.',
-  },
-]
-
 export default function ServicesAndProfessionals() {
+  const [professionals, setProfessionals] = useState(defaultProfessionals)
   const [selectedService, setSelectedService] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [currentIndex, setCurrentIndex] = useState(0)
   const carouselTrackRef = useRef(null)
 
-  // Filtrado de profesionales según el servicio seleccionado y el texto de búsqueda
-  const filteredProfessionals = useMemo(() => {
-    return professionalsData.filter((pro) => {
-      const matchesService =
-        selectedService === 'all' || pro.serviceId === selectedService
+  // Cargar datos dinámicos desde Supabase / LocalStorage
+  useEffect(() => {
+    let isMounted = true
+    const loadPros = async () => {
+      try {
+        const res = await professionalsService.getProfessionals()
+        if (isMounted && res.data) {
+          setProfessionals(res.data)
+        }
+      } catch (err) {
+        console.error('Error cargando profesionales:', err)
+      }
+    }
+    loadPros()
 
-      const query = searchTerm.toLowerCase().trim()
-      const matchesSearch =
-        !query ||
-        pro.name.toLowerCase().includes(query) ||
-        pro.specialty.toLowerCase().includes(query) ||
-        pro.serviceName.toLowerCase().includes(query) ||
-        pro.address.toLowerCase().includes(query) ||
-        pro.bio.toLowerCase().includes(query)
-
-      return matchesService && matchesSearch
+    const unsubscribe = professionalsService.onProfessionalsChange((updated) => {
+      if (isMounted && updated) {
+        setProfessionals(updated)
+      } else {
+        loadPros()
+      }
     })
-  }, [selectedService, searchTerm])
+
+    return () => {
+      isMounted = false
+      unsubscribe()
+    }
+  }, [])
+
+  // Filtrado de profesionales activos según el servicio seleccionado y el texto de búsqueda
+  const filteredProfessionals = useMemo(() => {
+    return professionals
+      .filter((pro) => pro.status !== 'inactive')
+      .filter((pro) => {
+        const matchesService =
+          selectedService === 'all' || pro.serviceId === selectedService
+
+        const query = searchTerm.toLowerCase().trim()
+        const matchesSearch =
+          !query ||
+          pro.name?.toLowerCase().includes(query) ||
+          pro.specialty?.toLowerCase().includes(query) ||
+          pro.serviceName?.toLowerCase().includes(query) ||
+          pro.address?.toLowerCase().includes(query) ||
+          pro.bio?.toLowerCase().includes(query)
+
+        return matchesService && matchesSearch
+      })
+  }, [professionals, selectedService, searchTerm])
 
   // Reiniciar el índice si la lista filtrada cambia y el índice queda fuera de rango
   useEffect(() => {
@@ -338,9 +241,10 @@ export default function ServicesAndProfessionals() {
         <div className="services-filter-nav" role="tablist" aria-label="Especialidades y Servicios Médicos">
           <div className="services-filter-track">
             {servicesData.map((service) => {
+              const activePros = professionals.filter((p) => p.status !== 'inactive')
               const count = service.id === 'all'
-                ? professionalsData.length
-                : professionalsData.filter((p) => p.serviceId === service.id).length
+                ? activePros.length
+                : activePros.filter((p) => p.serviceId === service.id).length
               const isActive = selectedService === service.id
 
               return (
