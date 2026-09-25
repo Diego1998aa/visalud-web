@@ -1,0 +1,837 @@
+/* ==========================================================================
+   INTEGRITY VIRTUAL ASSISTANT WIDGET - VISALUD OSORNO
+   Desarrollado para Visalud · Powered by UrbanZync AI
+   ========================================================================== */
+
+/* Variables de tema del Widget */
+:root {
+  --integrity-primary: #06b6d4;
+  --integrity-primary-glow: rgba(6, 182, 212, 0.45);
+  --integrity-accent: #0d9488;
+  --integrity-dark-bg: rgba(7, 13, 22, 0.88);
+  --integrity-panel-bg: rgba(9, 16, 28, 0.95);
+  --integrity-surface: rgba(15, 23, 42, 0.7);
+  --integrity-border: rgba(34, 211, 238, 0.22);
+  --integrity-border-hover: rgba(34, 211, 238, 0.45);
+  --integrity-text-main: #f1f5f9;
+  --integrity-text-muted: #94a3b8;
+  --integrity-bot-bubble: rgba(13, 27, 42, 0.92);
+  --integrity-user-bubble: linear-gradient(135deg, #0d9488 0%, #0891b2 100%);
+  --integrity-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.55), 0 0 28px -6px rgba(6, 182, 212, 0.2);
+}
+
+/* ==========================================================================
+   1. BOTÓN FLOTANTE LANZADOR (LAUNCHER)
+   ========================================================================== */
+.integrity-launcher-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.integrity-launcher-container * {
+  pointer-events: auto;
+}
+
+/* Tooltip / Globo de bienvenida */
+.integrity-launcher-tooltip {
+  background: var(--integrity-panel-bg);
+  color: var(--integrity-text-main);
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 0.84rem;
+  max-width: 250px;
+  line-height: 1.35;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35), 0 0 15px rgba(6, 182, 212, 0.15);
+  border: 1px solid var(--integrity-border);
+  backdrop-filter: blur(12px);
+  position: relative;
+  animation: integrityFadeSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.integrity-launcher-tooltip strong {
+  color: var(--integrity-primary);
+  font-weight: 600;
+}
+
+.integrity-tooltip-close {
+  background: none;
+  border: none;
+  color: var(--integrity-text-muted);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  margin-left: auto;
+}
+
+.integrity-tooltip-close:hover {
+  opacity: 1;
+  color: var(--integrity-text-main);
+}
+
+.integrity-tooltip-arrow {
+  position: absolute;
+  bottom: -6px;
+  right: 26px;
+  width: 12px;
+  height: 12px;
+  background: var(--integrity-panel-bg);
+  border-right: 1px solid var(--integrity-border);
+  border-bottom: 1px solid var(--integrity-border);
+  transform: rotate(45deg);
+}
+
+/* Botón principal del lanzador */
+.integrity-launcher-btn {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #091522 0%, #0d2838 100%);
+  border: 2px solid var(--integrity-primary);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--integrity-shadow);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: visible;
+  outline: none;
+}
+
+.integrity-launcher-btn:hover {
+  transform: scale(1.08) translateY(-2px);
+  box-shadow: 0 16px 36px rgba(6, 182, 212, 0.35), 0 0 24px rgba(6, 182, 212, 0.4);
+  border-color: #38bdf8;
+}
+
+.integrity-launcher-btn:active {
+  transform: scale(0.96);
+}
+
+.integrity-launcher-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.6));
+  transition: transform 0.3s ease;
+}
+
+.integrity-launcher-btn:hover .integrity-launcher-avatar {
+  transform: rotate(10deg) scale(1.05);
+}
+
+/* Anillo pulsante de IA */
+.integrity-pulse-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid var(--integrity-primary);
+  opacity: 0.7;
+  animation: integrityPulse 2.4s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  pointer-events: none;
+}
+
+.integrity-pulse-ring-delayed {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid var(--integrity-primary);
+  opacity: 0.4;
+  animation: integrityPulse 2.4s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  animation-delay: 1.2s;
+  pointer-events: none;
+}
+
+/* Distintivo de estado en el botón */
+.integrity-launcher-status-dot {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 2.5px solid #091522;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.integrity-launcher-status-dot.demo {
+  background: #06b6d4;
+  box-shadow: 0 0 8px #06b6d4;
+}
+
+/* ==========================================================================
+   2. VENTANA MODAL DEL CHAT (VENTANA FLOTANTE GLASSMORPHISM)
+   ========================================================================== */
+.integrity-chat-window {
+  position: fixed;
+  bottom: 98px;
+  right: 24px;
+  width: 395px;
+  height: 610px;
+  max-height: calc(100vh - 120px);
+  background: var(--integrity-dark-bg);
+  border: 1px solid var(--integrity-border);
+  border-radius: 22px;
+  box-shadow: var(--integrity-shadow);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9999;
+  font-family: inherit;
+  animation: integrityWindowOpen 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: bottom right;
+}
+
+@keyframes integrityWindowOpen {
+  from {
+    opacity: 0;
+    transform: scale(0.85) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes integrityFadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes integrityPulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   3. CABECERA DEL CHAT (HEADER)
+   ========================================================================== */
+.integrity-header {
+  padding: 14px 18px;
+  background: var(--integrity-panel-bg);
+  border-bottom: 1px solid var(--integrity-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  position: relative;
+}
+
+.integrity-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 20px;
+  right: 20px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--integrity-primary), transparent);
+  opacity: 0.6;
+}
+
+.integrity-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.integrity-header-logo-wrap {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.25) 0%, transparent 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.integrity-header-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 6px var(--integrity-primary-glow));
+}
+
+.integrity-header-titles {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.integrity-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.integrity-title {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--integrity-text-main);
+  background: linear-gradient(135deg, #ffffff 40%, var(--integrity-primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.integrity-badge-ai {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(6, 182, 212, 0.16);
+  color: #38bdf8;
+  border: 1px solid rgba(6, 182, 212, 0.35);
+}
+
+.integrity-status-line {
+  font-size: 0.72rem;
+  color: var(--integrity-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.integrity-status-dot-mini {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
+
+.integrity-status-dot-mini.demo {
+  background: #06b6d4;
+  box-shadow: 0 0 6px #06b6d4;
+}
+
+.integrity-status-dot-mini.checking {
+  background: #f59e0b;
+  box-shadow: 0 0 6px #f59e0b;
+}
+
+/* Acciones en Header */
+.integrity-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.integrity-icon-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--integrity-text-muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.integrity-icon-btn:hover {
+  background: rgba(6, 182, 212, 0.15);
+  color: var(--integrity-text-main);
+  border-color: var(--integrity-border);
+}
+
+/* ==========================================================================
+   4. PANEL DE CONFIGURACIÓN DEL SERVIDOR RASA
+   ========================================================================== */
+.integrity-settings-panel {
+  background: rgba(11, 20, 34, 0.98);
+  border-bottom: 1px solid var(--integrity-border);
+  padding: 12px 18px;
+  font-size: 0.8rem;
+  animation: integrityFadeSlideUp 0.25s ease;
+}
+
+.integrity-settings-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.integrity-settings-label {
+  color: var(--integrity-text-muted);
+  font-size: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.integrity-settings-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.integrity-settings-input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--integrity-border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: var(--integrity-text-main);
+  font-size: 0.78rem;
+  outline: none;
+}
+
+.integrity-settings-input:focus {
+  border-color: var(--integrity-primary);
+}
+
+.integrity-settings-btn {
+  background: var(--integrity-primary);
+  color: #03111b;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.integrity-settings-btn:hover {
+  opacity: 0.9;
+}
+
+.integrity-settings-hint {
+  font-size: 0.7rem;
+  color: var(--integrity-text-muted);
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   5. ÁREA DE MENSAJES
+   ========================================================================== */
+.integrity-messages-container {
+  flex: 1;
+  padding: 16px 16px 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scroll-behavior: smooth;
+}
+
+.integrity-messages-container::-webkit-scrollbar {
+  width: 5px;
+}
+
+.integrity-messages-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.integrity-messages-container::-webkit-scrollbar-thumb {
+  background: rgba(34, 211, 238, 0.2);
+  border-radius: 10px;
+}
+
+.integrity-messages-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 211, 238, 0.4);
+}
+
+/* Fila de Mensaje */
+.integrity-msg-row {
+  display: flex;
+  gap: 10px;
+  max-width: 88%;
+  animation: integrityFadeSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.integrity-msg-row.bot {
+  align-self: flex-start;
+}
+
+.integrity-msg-row.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+/* Avatar de Integrity en mensajes */
+.integrity-msg-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-top: 4px;
+  background: rgba(6, 182, 212, 0.15);
+  border: 1px solid var(--integrity-border);
+  padding: 2px;
+}
+
+/* Burbuja de contenido */
+.integrity-bubble {
+  border-radius: 16px;
+  padding: 12px 15px;
+  font-size: 0.88rem;
+  line-height: 1.48;
+  position: relative;
+  word-break: break-word;
+}
+
+.integrity-msg-row.bot .integrity-bubble {
+  background: var(--integrity-bot-bubble);
+  border: 1px solid var(--integrity-border);
+  color: var(--integrity-text-main);
+  border-top-left-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.integrity-msg-row.user .integrity-bubble {
+  background: var(--integrity-user-bubble);
+  color: #ffffff;
+  border-top-right-radius: 4px;
+  box-shadow: 0 4px 16px rgba(8, 145, 178, 0.25);
+}
+
+.integrity-bubble-text {
+  white-space: pre-wrap;
+}
+
+.integrity-bubble-text strong {
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.integrity-msg-row.user .integrity-bubble-text strong {
+  color: #ffffff;
+}
+
+/* Hora del mensaje */
+.integrity-msg-time {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--integrity-text-muted);
+  margin-top: 6px;
+  text-align: right;
+  opacity: 0.8;
+}
+
+.integrity-msg-row.user .integrity-msg-time {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Botones de acción dentro de la respuesta del bot */
+.integrity-bubble-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(34, 211, 238, 0.2);
+}
+
+.integrity-action-btn {
+  background: rgba(6, 182, 212, 0.15);
+  border: 1px solid var(--integrity-border);
+  color: #38bdf8;
+  padding: 6px 11px;
+  border-radius: 12px;
+  font-size: 0.76rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.integrity-action-btn:hover {
+  background: var(--integrity-primary);
+  color: #04121d;
+  border-color: var(--integrity-primary);
+  transform: translateY(-1px);
+}
+
+.integrity-action-btn.whatsapp-action {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+
+.integrity-action-btn.whatsapp-action:hover {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+}
+
+/* Indicador de escritura (Typing dots) */
+.integrity-typing-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  animation: integrityFadeSlideUp 0.25s ease;
+}
+
+.integrity-typing-pill {
+  background: var(--integrity-bot-bubble);
+  border: 1px solid var(--integrity-border);
+  border-radius: 14px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.integrity-typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--integrity-primary);
+  opacity: 0.4;
+  animation: integrityBlink 1.4s infinite ease-in-out both;
+}
+
+.integrity-typing-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+.integrity-typing-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes integrityBlink {
+  0%, 80%, 100% {
+    transform: scale(0.7);
+    opacity: 0.3;
+  }
+  40% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+.integrity-typing-text {
+  font-size: 0.72rem;
+  color: var(--integrity-text-muted);
+  font-style: italic;
+  margin-left: 4px;
+}
+
+/* ==========================================================================
+   6. QUICK CHIPS (PREGUNTAS RÁPIDAS CLÍNICAS)
+   ========================================================================== */
+.integrity-quick-chips-wrapper {
+  padding: 8px 14px 4px;
+  background: rgba(8, 15, 26, 0.75);
+  border-top: 1px solid rgba(34, 211, 238, 0.1);
+}
+
+.integrity-quick-chips-title {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--integrity-text-muted);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.integrity-quick-chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.integrity-quick-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.integrity-chip {
+  background: rgba(6, 182, 212, 0.08);
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  color: var(--integrity-text-main);
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.integrity-chip:hover {
+  background: rgba(6, 182, 212, 0.22);
+  border-color: var(--integrity-primary);
+  color: #38bdf8;
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   7. ÁREA DE ESCRITURA (COMPOSER)
+   ========================================================================== */
+.integrity-composer {
+  padding: 10px 14px 14px;
+  background: var(--integrity-panel-bg);
+  border-top: 1px solid var(--integrity-border);
+}
+
+.integrity-composer-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--integrity-border);
+  border-radius: 14px;
+  padding: 4px 6px 4px 12px;
+  transition: border-color 0.2s;
+}
+
+.integrity-composer-form:focus-within {
+  border-color: var(--integrity-primary);
+  box-shadow: 0 0 14px rgba(6, 182, 212, 0.2);
+}
+
+.integrity-textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--integrity-text-main);
+  font-size: 0.86rem;
+  line-height: 1.4;
+  resize: none;
+  padding: 6px 0;
+  font-family: inherit;
+  max-height: 80px;
+}
+
+.integrity-textarea::placeholder {
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.integrity-send-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0d9488 0%, #06b6d4 100%);
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+}
+
+.integrity-send-btn:hover:not(:disabled) {
+  transform: scale(1.06);
+  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.4);
+}
+
+.integrity-send-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(0.6);
+}
+
+.integrity-composer-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  font-size: 0.68rem;
+  color: #64748b;
+  padding: 0 4px;
+}
+
+.integrity-brand-watermark {
+  color: var(--integrity-text-muted);
+}
+
+.integrity-brand-watermark strong {
+  color: #38bdf8;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   8. RESPONSIVE (MÓVILES)
+   ========================================================================== */
+@media (max-width: 480px) {
+  .integrity-launcher-container {
+    bottom: 18px;
+    right: 18px;
+  }
+
+  .integrity-launcher-btn {
+    width: 56px;
+    height: 56px;
+  }
+
+  .integrity-launcher-avatar {
+    width: 34px;
+    height: 34px;
+  }
+
+  .integrity-chat-window {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    border: none;
+    z-index: 10000;
+  }
+
+  .integrity-header {
+    padding-top: max(14px, env(safe-area-inset-top));
+  }
+
+  .integrity-composer {
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+  }
+}

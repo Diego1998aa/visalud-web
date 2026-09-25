@@ -7,6 +7,7 @@ import Contact from './components/Contact.jsx'
 import Footer from './components/Footer.jsx'
 import Admin from './components/Admin.jsx'
 import AdminLogin from './components/AdminLogin.jsx'
+import IntegrityWidget from './components/IntegrityWidget.jsx'
 import { authService } from './services/authService.js'
 import './App.css'
 
@@ -187,6 +188,7 @@ export default function App() {
         <Contact />
       </main>
       <Footer onNavigateAdmin={navigateToAdmin} />
+      <IntegrityWidget />
     </div>
   )
 }
