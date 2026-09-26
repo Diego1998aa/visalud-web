@@ -1391,6 +1391,173 @@
   color: var(--green-dark);
 }
 
+/* ==================== BANNER MODELO PUENTE DIRECTO ==================== */
+.bridge-explainer-banner {
+  background: linear-gradient(135deg, rgba(0, 141, 126, 0.05) 0%, rgba(255, 255, 255, 0.95) 100%);
+  border: 1.5px solid rgba(0, 141, 126, 0.18);
+  border-radius: 20px;
+  padding: 2.2rem 2.2rem 2.4rem;
+  margin: 0 auto 3rem;
+  max-width: 1100px;
+  box-shadow: 0 10px 30px rgba(0, 141, 126, 0.06);
+  backdrop-filter: blur(10px);
+}
+
+.bridge-explainer-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.bridge-badge {
+  display: inline-block;
+  background: var(--green-soft);
+  color: var(--green-dark);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.35rem 0.95rem;
+  border-radius: 999px;
+  margin-bottom: 0.75rem;
+  border: 1px solid rgba(0, 141, 126, 0.22);
+}
+
+.bridge-title {
+  font-size: clamp(1.35rem, 2.5vw, 1.85rem);
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.bridge-subtitle {
+  font-size: 0.98rem;
+  color: var(--muted);
+  max-width: 62ch;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.bridge-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.bridge-step-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.1rem;
+  background: #ffffff;
+  border: 1px solid rgba(0, 141, 126, 0.14);
+  border-radius: 16px;
+  padding: 1.4rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.bridge-step-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 141, 126, 0.12);
+  border-color: rgba(0, 141, 126, 0.35);
+}
+
+.bridge-step-num {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 141, 126, 0.3);
+}
+
+.bridge-step-body h4 {
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.4rem;
+  letter-spacing: -0.01em;
+}
+
+.bridge-step-body p {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* ==================== BOX DE COORDINACIÓN DE TURNOS ==================== */
+.coordination-feature-box {
+  background: linear-gradient(135deg, #f0faf7 0%, #e2f5f0 100%);
+  border: 2px solid var(--green);
+  border-radius: 18px;
+  padding: 2rem 2.2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 141, 126, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+
+.coord-box-badge {
+  display: inline-block;
+  background: var(--green);
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  margin-bottom: 0.85rem;
+}
+
+.coord-box-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--green-dark);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.65rem;
+}
+
+.coord-box-desc {
+  font-size: 0.98rem;
+  line-height: 1.65;
+  color: #1a4a42;
+  margin-bottom: 1.5rem;
+  max-width: 75ch;
+}
+
+.coord-box-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.coord-cta-btn {
+  max-width: 380px;
+}
+
+.convenios-particular-badge {
+  background: rgba(0, 141, 126, 0.08) !important;
+  color: var(--green-dark) !important;
+  border: 1px solid rgba(0, 141, 126, 0.25) !important;
+  font-weight: 600 !important;
+}
+
+@media (max-width: 900px) {
+  .bridge-steps-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+
 /* Barra de Búsqueda Rápida */
 .pro-search-bar-wrapper {
   max-width: 620px;
@@ -3238,6 +3405,166 @@
   transform: translateX(3px);
 }
 
+/* ==================== CONTACTO - TARJETA WHATSAPP ==================== */
+.contact-card-whatsapp {
+  border-color: rgba(37, 211, 102, 0.3) !important;
+  background: linear-gradient(135deg, rgba(37, 211, 102, 0.05) 0%, rgba(18, 140, 126, 0.02) 100%) !important;
+}
+
+.contact-card-whatsapp .contact-card-icon {
+  background: #25d366 !important;
+  color: #ffffff !important;
+  border-color: #25d366 !important;
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.32) !important;
+  transition: all 0.25s ease;
+}
+
+.contact-card-whatsapp:hover {
+  border-color: #25d366 !important;
+  box-shadow: 0 10px 28px rgba(37, 211, 102, 0.22) !important;
+  transform: translateY(-2px);
+}
+
+.contact-card-whatsapp:hover .contact-card-icon {
+  background: #128c7e !important;
+  color: #ffffff !important;
+  transform: scale(1.08);
+}
+
+.contact-card-whatsapp:hover .contact-card-value.link {
+  color: #075e54 !important;
+}
+
+.contact-card-whatsapp:hover .contact-card-arrow {
+  color: #25d366 !important;
+  transform: translateX(4px);
+}
+
+/* ==================== FOOTER - BOTONES REDES SOCIALES & WHATSAPP ==================== */
+.footer-social-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+.footer-whatsapp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.65rem 1.15rem;
+  background: rgba(37, 211, 102, 0.08);
+  border: 1px solid rgba(37, 211, 102, 0.28);
+  border-radius: 14px;
+  text-decoration: none;
+  width: fit-content;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.footer-whatsapp-btn:hover {
+  background: #25d366;
+  border-color: #25d366;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 211, 102, 0.35);
+}
+
+.footer-whatsapp-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: #25d366;
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.25);
+  transition: all 0.25s ease;
+}
+
+.footer-whatsapp-btn:hover .footer-whatsapp-icon {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+.footer-whatsapp-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-whatsapp-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #075e54;
+  transition: color 0.2s ease;
+}
+
+.footer-whatsapp-handle {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ink);
+  transition: color 0.2s ease;
+}
+
+.footer-whatsapp-arrow {
+  color: #25d366;
+  transition: all 0.22s ease;
+}
+
+.footer-whatsapp-btn:hover .footer-whatsapp-label,
+.footer-whatsapp-btn:hover .footer-whatsapp-handle,
+.footer-whatsapp-btn:hover .footer-whatsapp-arrow {
+  color: #ffffff !important;
+}
+
+.footer-whatsapp-btn:hover .footer-whatsapp-arrow {
+  transform: translate(2px, -2px);
+}
+
+/* Botón de Coordinación Lateral con WhatsApp */
+.btn-service-coord-whatsapp {
+  background: linear-gradient(135deg, #128c7e 0%, #075e54 100%) !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.65rem !important;
+  font-weight: 700 !important;
+  box-shadow: 0 6px 20px rgba(7, 94, 84, 0.25) !important;
+}
+
+.btn-service-coord-whatsapp:hover {
+  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(37, 211, 102, 0.35) !important;
+}
+
+.btn-coord-wa-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.footer-note-whatsapp-link {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  color: #075e54 !important;
+  font-weight: 700 !important;
+}
+
+.footer-note-whatsapp-link:hover {
+  color: #25d366 !important;
+}
+
+.footer-note-wa-icon {
+  color: #25d366;
+  display: flex;
+  align-items: center;
+}
+
 /* ==================== FOOTER - BOTÓN INSTAGRAM ==================== */
 .footer-instagram-btn {
   display: inline-flex;
@@ -3248,10 +3575,10 @@
   border: 1px solid rgba(225, 48, 108, 0.22);
   border-radius: 14px;
   text-decoration: none;
-  margin-top: 0.5rem;
   width: fit-content;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 
 .footer-instagram-btn:hover {
   background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
@@ -3535,190 +3862,586 @@
   transform: translate(2px, -2px);
 }
 
-/* Post Cards Grid */
+/* ==================== INSTAGRAM PROFILE STATS & ACTIONS ==================== */
+.insta-profile-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.insta-badge-role {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.6rem;
+  background: rgba(225, 48, 108, 0.1);
+  color: #c13584;
+  border-radius: 999px;
+  border: 1px solid rgba(225, 48, 108, 0.2);
+}
+
+.insta-profile-stats {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin-top: 0.35rem;
+}
+
+.insta-profile-stats strong {
+  color: var(--ink);
+  font-weight: 800;
+}
+
+/* Tabs de publicaciones */
+.insta-feed-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1.2rem;
+  margin-top: -0.5rem;
+}
+
+.insta-feed-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.4rem;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.insta-feed-tab:hover {
+  color: #c13584;
+  background: rgba(225, 48, 108, 0.06);
+}
+
+.insta-feed-tab.active {
+  color: #ffffff;
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  box-shadow: 0 4px 14px rgba(220, 39, 67, 0.25);
+}
+
+/* ==================== INSTAGRAM POST CARDS (AUTÉNTICO FEED) ==================== */
 .insta-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
 }
 
-.insta-card {
-  position: relative;
+.insta-post-card {
   background: #ffffff;
-  border-radius: 20px;
-  border: 1px solid var(--line);
-  padding: 1.6rem 1.4rem 1.3rem;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 1.25rem;
-  text-decoration: none;
-  color: inherit;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
   transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease;
+  cursor: pointer;
+}
+
+.insta-post-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(225, 48, 108, 0.35);
+  box-shadow: 0 16px 36px rgba(220, 39, 67, 0.14), 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Post Header */
+.insta-post-header {
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: #ffffff;
+}
+
+.insta-post-author {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
   overflow: hidden;
 }
 
-.insta-card-gradient-1 {
-  background: linear-gradient(180deg, #ffffff 0%, #fdf6f3 100%);
+.insta-post-avatar-mini {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  padding: 1.8px;
+  background: linear-gradient(45deg, #f09433, #dc2743, #bc1888);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
 }
 
-.insta-card-gradient-2 {
-  background: linear-gradient(180deg, #ffffff 0%, #f5faf9 100%);
+.insta-post-avatar-mini img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #ffffff;
+  object-fit: contain;
+  padding: 2px;
 }
 
-.insta-card-gradient-3 {
-  background: linear-gradient(180deg, #ffffff 0%, #fdf8f5 100%);
+.insta-post-author-meta {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.insta-card-gradient-4 {
-  background: linear-gradient(180deg, #ffffff 0%, #f7f5fa 100%);
-}
-
-.insta-card:hover {
-  transform: translateY(-6px);
-  border-color: rgba(220, 39, 67, 0.35);
-  box-shadow: 0 16px 36px rgba(220, 39, 67, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04);
-}
-
-.insta-card-top {
+.insta-post-author-name {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 0.25rem;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--ink);
 }
 
-.insta-card-tag {
-  font-size: 0.72rem;
+.insta-post-location {
+  font-size: 0.7rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.insta-post-badge-pill {
+  font-size: 0.68rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.3rem 0.75rem;
+  padding: 0.2rem 0.55rem;
   border-radius: 999px;
   background: rgba(0, 141, 126, 0.08);
   color: var(--green-dark);
-  border: 1px solid rgba(0, 141, 126, 0.16);
-  transition: all 0.22s ease;
+  white-space: nowrap;
 }
 
-.insta-card:hover .insta-card-tag {
-  background: rgba(220, 39, 67, 0.09);
-  color: #c13584;
-  border-color: rgba(220, 39, 67, 0.22);
+/* Post Media (Image) */
+.insta-post-media-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #111827;
+  overflow: hidden;
 }
 
-.insta-card-top-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: #ffffff;
-  border: 1px solid var(--line);
-  color: var(--green);
+.insta-post-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: block;
+}
+
+.insta-post-card:hover .insta-post-image {
+  transform: scale(1.05);
+}
+
+.insta-media-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65);
+  color: #ffffff;
   display: grid;
   place-items: center;
-  transition: all 0.22s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(4px);
+  z-index: 2;
 }
 
-.insta-card:hover .insta-card-top-icon {
-  background: linear-gradient(45deg, #f09433, #dc2743);
-  color: #ffffff;
-  border-color: transparent;
-  transform: rotate(-4deg) scale(1.06);
-}
-
-.insta-card-body {
+.insta-post-hover-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
-  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  color: #ffffff;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  z-index: 3;
 }
 
-.insta-card-title {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--ink);
-  line-height: 1.35;
-  transition: color 0.2s ease;
+.insta-post-card:hover .insta-post-hover-overlay {
+  opacity: 1;
 }
 
-.insta-card:hover .insta-card-title {
-  color: #c13584;
-}
-
-.insta-card-excerpt {
-  font-size: 0.88rem;
-  color: var(--muted);
-  line-height: 1.55;
-  margin: 0;
-}
-
-.insta-card-tags {
+.insta-hover-stat {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.insta-hover-cta {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(6px);
   margin-top: 0.3rem;
 }
 
-.insta-ht {
-  font-size: 0.74rem;
-  font-weight: 600;
-  color: #833ab4;
-  opacity: 0.85;
-}
-
-.insta-card-footer {
+/* Post Actions Bar */
+.insta-post-actions-bar {
+  padding: 0.65rem 0.95rem 0.4rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 0.85rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
-  font-size: 0.82rem;
 }
 
-.insta-metrics {
+.insta-actions-left {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  color: var(--muted);
+  gap: 0.75rem;
 }
 
-.insta-metric {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-weight: 600;
+.btn-insta-action-icon {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: transform 0.18s ease, color 0.18s ease;
 }
 
-.insta-card:hover .insta-metric {
+.btn-insta-action-icon:hover {
+  transform: scale(1.15);
   color: #e1306c;
 }
 
-.insta-card-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
+.btn-insta-action-icon.heart-btn.liked {
+  color: #e1306c;
+  animation: heartPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+.btn-insta-action-icon.save-btn.saved {
+  color: var(--ink);
+  transform: scale(1.08);
+}
+
+/* Post Content & Caption */
+.insta-post-content {
+  padding: 0 0.95rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.84rem;
+  flex: 1;
+}
+
+.insta-likes-count {
+  font-size: 0.82rem;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.insta-post-caption {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--ink);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.insta-caption-handle {
   font-weight: 700;
-  color: var(--green);
+  margin-right: 0.3rem;
+}
+
+.insta-hashtags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.1rem;
+}
+
+.insta-ht-link {
+  font-size: 0.73rem;
+  font-weight: 600;
+  color: #00376b;
+  opacity: 0.9;
+}
+
+.insta-comments-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.2rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.insta-comments-link {
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+.insta-post-time {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Post Footer Action */
+.insta-post-footer-action {
+  padding: 0.65rem 0.95rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  background: #fbfcfc;
+}
+
+.insta-view-external {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #c13584;
   transition: color 0.2s ease, transform 0.2s ease;
 }
 
-.insta-card:hover .insta-card-action {
-  color: #c13584;
+.insta-view-external:hover {
+  color: #833ab4;
   transform: translateX(2px);
 }
 
-.insta-card-glow {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #f09433, #dc2743, #bc1888);
-  opacity: 0;
-  transition: opacity 0.25s ease;
+/* ==================== MODAL DE PUBLICACIÓN INSTAGRAM ==================== */
+.insta-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: fadeIn 0.2s ease;
 }
 
-.insta-card:hover .insta-card-glow {
-  opacity: 1;
+.insta-modal-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 20px;
+  max-width: 860px;
+  width: 100%;
+  max-height: 90vh;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.insta-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  transition: background 0.2s ease;
+}
+
+.insta-modal-close:hover {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.insta-modal-media {
+  background: #0b1120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.insta-modal-media img {
+  width: 100%;
+  height: 100%;
+  max-height: 75vh;
+  object-fit: cover;
+}
+
+.insta-modal-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.5rem 1.6rem;
+  background: #ffffff;
+  overflow-y: auto;
+}
+
+.insta-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.insta-modal-author {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.insta-modal-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: contain;
+  padding: 2px;
+  border: 2px solid #e1306c;
+}
+
+.insta-modal-user-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.92rem;
+}
+
+.insta-modal-loc {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.btn-modal-follow {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0095f6;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.btn-modal-follow:hover {
+  color: #00376b;
+}
+
+.insta-modal-body {
+  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  flex: 1;
+}
+
+.insta-modal-caption {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--ink);
+  margin: 0;
+}
+
+.insta-modal-hashtags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: #00376b;
+  font-weight: 600;
+}
+
+.insta-modal-comment-item {
+  padding: 0.75rem;
+  border-radius: 10px;
+  background: #f8fafc;
+  font-size: 0.82rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.insta-modal-footer {
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.insta-modal-likes-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.insta-modal-date {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.btn-modal-open-insta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  border-radius: 12px;
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(220, 39, 67, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-modal-open-insta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(220, 39, 67, 0.35);
+  color: #ffffff;
 }
 
 /* Bottom bar */
@@ -3753,6 +4476,72 @@
   .insta-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+@media (max-width: 680px) {
+  .insta-grid {
+    grid-template-columns: 1fr;
+    max-width: 380px;
+    margin: 0 auto;
+  }
+
+  .insta-profile-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.4rem;
+  }
+
+  .insta-profile-info {
+    flex-direction: column;
+  }
+
+  .insta-profile-handle-row {
+    justify-content: center;
+  }
+
+  .insta-profile-stats {
+    justify-content: center;
+  }
+
+  .insta-modal-card {
+    grid-template-columns: 1fr;
+    max-height: 85vh;
+  }
+
+  .insta-modal-media {
+    max-height: 240px;
+  }
+}
+
+/* Dark mode */
+[data-theme="dark"] .insta-post-card {
+  background: #111e1c;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .insta-post-header {
+  background: #111e1c;
+}
+
+[data-theme="dark"] .insta-post-footer-action {
+  background: #0d1715;
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .insta-modal-card,
+[data-theme="dark"] .insta-modal-details {
+  background: #111e1c;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .insta-modal-comment-item {
+  background: #0d1715;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .insta-ht-link,
+[data-theme="dark"] .insta-modal-hashtags {
+  color: #38bdf8;
 }
 
 @media (max-width: 768px) {
@@ -4214,6 +5003,65 @@
   color: #5eead4;
   font-weight: 700;
 }
+
+[data-theme="dark"] .bridge-explainer-banner {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.1) 0%, rgba(13, 26, 24, 0.95) 100%);
+  border-color: rgba(20, 184, 166, 0.25);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .bridge-badge {
+  background: rgba(20, 184, 166, 0.15);
+  color: #5eead4;
+  border-color: rgba(20, 184, 166, 0.3);
+}
+
+[data-theme="dark"] .bridge-title {
+  color: #f0fdfa;
+}
+
+[data-theme="dark"] .bridge-subtitle {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .bridge-step-card {
+  background: rgba(19, 34, 32, 0.9);
+  border-color: rgba(20, 184, 166, 0.2);
+}
+
+[data-theme="dark"] .bridge-step-card:hover {
+  border-color: rgba(20, 184, 166, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .bridge-step-body h4 {
+  color: #f0fdfa;
+}
+
+[data-theme="dark"] .bridge-step-body p {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .coordination-feature-box {
+  background: linear-gradient(135deg, rgba(15, 38, 35, 0.95) 0%, rgba(9, 22, 20, 0.95) 100%);
+  border-color: #14b8a6;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .coord-box-title {
+  color: #5eead4;
+}
+
+[data-theme="dark"] .coord-box-desc {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .convenios-particular-badge {
+  background: rgba(20, 184, 166, 0.12) !important;
+  color: #5eead4 !important;
+  border-color: rgba(20, 184, 166, 0.3) !important;
+}
+
 
 [data-theme="dark"] .pro-search-input-box {
   background: var(--bg-input);
@@ -4966,3 +5814,207 @@
 [data-theme="dark"] .footer-instagram-icon {
   background: #182b28;
 }
+
+[data-theme="dark"] .footer-whatsapp-icon {
+  background: #182b28;
+  color: #25d366;
+}
+
+[data-theme="dark"] .footer-whatsapp-btn {
+  background: rgba(37, 211, 102, 0.12);
+  border-color: rgba(37, 211, 102, 0.35);
+}
+
+[data-theme="dark"] .footer-note-whatsapp-link {
+  color: #5eead4 !important;
+}
+
+[data-theme="dark"] .footer-note-whatsapp-link:hover {
+  color: #25d366 !important;
+}
+
+/* ==================== HEADER - BOTÓN WHATSAPP ==================== */
+.btn-header-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.46rem 0.95rem;
+  background: #25d366;
+  color: #ffffff !important;
+  font-size: 0.84rem;
+  font-weight: 700;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.28);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-header-whatsapp:hover {
+  background: #128c7e;
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.4);
+}
+
+.btn-header-wa-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .btn-header-whatsapp {
+    padding: 0.45rem;
+    border-radius: 50%;
+  }
+  .btn-header-wa-label {
+    display: none;
+  }
+}
+
+/* Drawer móvil */
+.mobile-drawer-whatsapp-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  background: linear-gradient(135deg, rgba(37, 211, 102, 0.12) 0%, rgba(18, 140, 126, 0.08) 100%);
+  border: 1px solid rgba(37, 211, 102, 0.35);
+  border-radius: 12px;
+  color: #075e54;
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-decoration: none;
+  margin: 0.4rem 0;
+  transition: all 0.2s ease;
+}
+
+.mobile-drawer-whatsapp-btn:hover {
+  background: #25d366;
+  color: #ffffff;
+}
+
+.mobile-drawer-whatsapp-btn .mobile-wa-icon {
+  display: flex;
+  align-items: center;
+  color: #25d366;
+}
+
+.mobile-drawer-whatsapp-btn:hover .mobile-wa-icon {
+  color: #ffffff;
+}
+
+/* ==================== BOTÓN FLOTANTE WHATSAPP ==================== */
+.floating-whatsapp-container {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 9990;
+  display: flex;
+  align-items: center;
+}
+
+.floating-whatsapp-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 10px 16px 10px 12px;
+  background: #25d366;
+  color: #ffffff !important;
+  border-radius: 50px;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4), 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.floating-whatsapp-btn:hover {
+  background: #128c7e;
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 12px 30px rgba(37, 211, 102, 0.5), 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.floating-whatsapp-pulse {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50px;
+  background: rgba(37, 211, 102, 0.4);
+  z-index: -1;
+  animation: waPulse 2.2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+@keyframes waPulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(1.15);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.15);
+    opacity: 0;
+  }
+}
+
+.floating-whatsapp-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: #ffffff;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.floating-whatsapp-tooltip {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.floating-wa-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.9;
+}
+
+.floating-wa-title {
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 640px) {
+  .floating-whatsapp-container {
+    bottom: 20px;
+    left: 18px;
+  }
+
+  .floating-whatsapp-btn {
+    padding: 12px;
+    border-radius: 50%;
+  }
+
+  .floating-whatsapp-tooltip {
+    display: none;
+  }
+
+  .floating-whatsapp-pulse {
+    border-radius: 50%;
+  }
+}
+
+/* Dark mode para Floating y Mobile WhatsApp */
+[data-theme="dark"] .mobile-drawer-whatsapp-btn {
+  background: rgba(37, 211, 102, 0.15);
+  border-color: rgba(37, 211, 102, 0.4);
+  color: #5eead4;
+}
+
+[data-theme="dark"] .mobile-drawer-whatsapp-btn:hover {
+  background: #25d366;
+  color: #ffffff;
+}

@@ -34,27 +34,27 @@ export default function IntroSection() {
         <div className="hero-copy">
           <div className="hero-badge">
             <span className="hero-badge-dot"></span>
-            <span>Compromiso con tu salud y bienestar</span>
+            <span>Cuidado Domiciliario de Adulto Mayor en Osorno</span>
           </div>
 
           <h1 className="hero-title">
-            Bienestar cercano, <span className="text-gradient">atención médica profesional</span>
+            Cuidado humanizado y técnico <span className="text-gradient">para tus adultos mayores</span>
           </h1>
 
           <p className="hero-lead">
-            En <strong>Visalud</strong> combinamos calidez humana, especialistas de primer nivel y
-            tecnología para acompañarte a ti y a tu familia en cada etapa de la vida.
+            En <strong>Visalud</strong> somos el puente directo entre tu familia y <strong>Técnicos en Enfermería (TENS)</strong> certificados a domicilio.
+            Servicios particulares por horas: <strong>medio turno (6 hrs)</strong> y <strong>turno completo (12 hrs)</strong>.
           </p>
 
           <div className="hero-actions">
-            <a href="#contacto" className="btn-hero-primary">
-              <span>Solicitar profesional</span>
+            <a href="#servicios" className="btn-hero-primary">
+              <span>Ver cuidadores TENS</span>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </a>
             <a href="#historia" className="btn-hero-secondary">
-              <span>Nuestra historia</span>
+              <span>Nuestra vocación</span>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M12 5v14M19 12l-7 7-7-7" />
               </svg>
@@ -64,20 +64,21 @@ export default function IntroSection() {
           {/* Estadísticas de Confianza */}
           <div className="hero-stats">
             <div className="stat-item">
-              <span className="stat-num">+15</span>
-              <span className="stat-label">Especialidades</span>
+              <span className="stat-num">100%</span>
+              <span className="stat-label">TENS Registro SIS</span>
             </div>
             <div className="stat-divider"></div>
             <div className="stat-item">
-              <span className="stat-num">+10</span>
-              <span className="stat-label">Años de experiencia</span>
+              <span className="stat-num">6h / 12h</span>
+              <span className="stat-label">Turnos Flexibles</span>
             </div>
             <div className="stat-divider"></div>
             <div className="stat-item">
-              <span className="stat-num">99%</span>
-              <span className="stat-label">Pacientes satisfechos</span>
+              <span className="stat-num">Directo</span>
+              <span className="stat-label">Acuerdo & Pago Particular</span>
             </div>
           </div>
+
         </div>
 
         {/* Escenario Visual / DepthCarousel 3D Interactivo */}

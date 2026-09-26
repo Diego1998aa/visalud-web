@@ -1,70 +1,70 @@
 import { useState, useEffect, useRef } from 'react'
 import './IntegrityWidget.css'
 
-// Número y plantilla de WhatsApp oficial para derivación
-const WHATSAPP_PHONE = '56951754416' // Número corporativo / de contacto
+// Número y plantilla de WhatsApp oficial para coordinación con la dueña / administración
+const WHATSAPP_PHONE = '56968016334'
 
 const INITIAL_GREETING = {
   id: 'welcome-msg',
   role: 'bot',
-  text: `¡Hola! 👋 Soy **Integrity**, asistente virtual inteligente de **Visalud Osorno** (desarrollado con IA por UrbanZync).\n\nEstoy aquí para orientarte en nuestros servicios de atención de salud y enfermería a domicilio en Osorno.\n\n¿En qué te puedo ayudar hoy?`,
+  text: `¡Hola! 👋 Soy **Integrity**, asistente virtual inteligente de **Visalud Osorno**.\n\nTe oriento para conectar a tu familia de forma directa con **Técnicos en Enfermería (TENS)** certificados en el **cuidado de adultos mayores a domicilio en Osorno**.\n\nModalidades particulares por horas: **medio turno (6 hrs)** y **turno completo (12 hrs)**.\n\n¿Qué información necesitas hoy?`,
   timestamp: new Date(),
   actions: [
-    { label: '🩹 Curaciones a domicilio', query: 'cuentame sobre las curaciones a domicilio' },
-    { label: '👵 Cuidados adulto mayor', query: 'que incluyen los cuidados de adulto mayor' },
-    { label: '💰 Reembolso Fonasa / Isapre', query: 'se puede reembolsar con fonasa o isapre' },
-    { label: '📍 Cobertura en Osorno', query: 'que sectores atienden en osorno' },
-    { label: '💬 Hablar por WhatsApp', isWhatsApp: true }
+    { label: '👵 Medio turno (6 hrs)', query: 'que incluye el medio turno de 6 horas' },
+    { label: '🌙 Turno completo (12 hrs / Vigilia)', query: 'como funciona el turno completo de 12 horas o vigilia' },
+    { label: '💳 ¿Cómo se paga? (Particular / Sin Isapre)', query: 'como es el pago y si atienden por isapre o particular' },
+    { label: '📋 Coordinación delegada con administración', query: 'pueden coordinar ustedes los turnos por mi' },
+    { label: '💬 Contactar a Coordinación', isWhatsApp: true, customText: 'Hola Visalud, quisiera consultar sobre el servicio de cuidado de adulto mayor a domicilio en Osorno' }
   ]
 }
 
 // Categorías ordenadas para acceso rápido
 const QUICK_CATEGORIES = [
-  { id: 'frecuentes', label: '⭐ Populares' },
-  { id: 'curaciones', label: '🩹 Curaciones' },
-  { id: 'adulto_mayor', label: '👵 Adulto Mayor' },
-  { id: 'inyecciones', label: '💉 Inyecciones' },
-  { id: 'reembolsos', label: '💰 Reembolsos' },
-  { id: 'cobertura', label: '📍 Cobertura' }
+  { id: 'frecuentes', label: '⭐ Destacados' },
+  { id: 'turnos', label: '⏱️ Turnos (6h y 12h)' },
+  { id: 'cuidados', label: '👵 Cuidados TENS' },
+  { id: 'pagos', label: '💳 Pagos & Particular' },
+  { id: 'coordinacion', label: '📋 Coordinación Delegada' },
+  { id: 'cobertura', label: '📍 Cobertura Osorno' }
 ]
 
 const CHIPS_BY_CATEGORY = {
   frecuentes: [
-    { label: '🩹 Curación de heridas', query: 'curacion de escaras y heridas' },
-    { label: '👵 Cuidados adulto mayor', query: 'turnos y cuidados de adulto mayor' },
-    { label: '💉 Inyecciones y sueros', query: 'administracion de inyecciones y sueros' },
-    { label: '💰 Fonasa e Isapres', query: 'como funciona el reembolso con isapres' },
+    { label: '⏱️ Medio turno (6 hrs)', query: 'que incluye el medio turno de 6 horas' },
+    { label: '🌙 Turno completo (12 hrs)', query: 'como funciona el turno completo de 12 horas o vigilia' },
+    { label: '💳 Pago directo al TENS (Sin Isapre)', query: 'como es el pago y si atienden por isapre o particular' },
+    { label: '📋 Delegar coordinación a Visalud', query: 'pueden coordinar ustedes los turnos por mi' },
     { label: '📍 Sectores en Osorno', query: 'que sectores atienden en osorno' },
-    { label: '💬 Hablar por WhatsApp', isWhatsApp: true }
+    { label: '💬 Hablar con Coordinación', isWhatsApp: true, customText: 'Hola Visalud, quisiera orientación para el cuidado de mi familiar en Osorno' }
   ],
-  curaciones: [
-    { label: '🩹 Curación de escaras', query: 'curacion de ulceras por presion o escaras' },
-    { label: '✂️ Retiro de puntos o grapas', query: 'retiro de puntos de cirugia' },
-    { label: '🦶 Pie diabético', query: 'manejo y curacion de pie diabetico' },
-    { label: '🔥 Quemaduras', query: 'curacion de quemaduras' }
+  turnos: [
+    { label: '☀️ Medio turno (6 hrs diurno o tarde)', query: 'que incluye el medio turno de 6 horas' },
+    { label: '🌕 Turno completo (12 hrs diurno)', query: 'como funciona el turno completo de 12 horas o vigilia' },
+    { label: '🌙 Vigilia nocturna (12 hrs de noche)', query: 'como es el turno de noche de vigilia para adulto mayor' },
+    { label: '📅 Turnos fin de semana', query: 'tienen cobertura de turnos para sabados y domingos' }
   ],
-  adulto_mayor: [
-    { label: '🌙 Turnos noche de vigilia', query: 'turnos nocturnos de vigilia para adulto mayor' },
-    { label: '☀️ Turnos diurnos (4, 8, 12 hrs)', query: 'turnos diurnos y acompanamiento' },
-    { label: '🛁 Aseo y confort en cama', query: 'bano en cama y aseo de cavidades' },
-    { label: '💊 Control y fármacos', query: 'administracion de medicamentos segun horario' }
+  cuidados: [
+    { label: '🛁 Aseo y confort en cama', query: 'como es el bano en cama y aseo personal' },
+    { label: '💊 Control y fármacos por horario', query: 'administracion de medicamentos segun horario' },
+    { label: '🛏️ Prevención de escaras y movilidad', query: 'como previenen las escaras en pacientes postrados' },
+    { label: '🧠 Pacientes con Alzheimer o demencia', query: 'atienden adultos mayores con alzheimer o demencia' }
   ],
-  inyecciones: [
-    { label: '💉 Inyección intramuscular (Neurobionta)', query: 'inyeccion de neurobionta o analgesico' },
-    { label: '💧 Sueroterapia e hidratación', query: 'instalacion de via venosa y suero' },
-    { label: '💊 Antibióticos endovenosos', query: 'terapia antibiotica endovenosa' },
-    { label: '🩺 Control de signos vitales', query: 'control de presion arterial y glicemia' }
-  ],
-  reembolsos: [
-    { label: '💰 ¿Cómo reembolsar en Isapres?', query: 'como funciona el reembolso con isapres' },
-    { label: '📄 Boleta médica con código', query: 'emiten boleta medica para reembolso' },
-    { label: '🏥 Cobertura Fonasa', query: 'atienden pacientes fonasa' },
+  pagos: [
+    { label: '💳 ¿Cómo se le paga al TENS?', query: 'como es el pago y si atienden por isapre o particular' },
+    { label: '🏥 ¿Tienen Isapre o reembolso?', query: 'se puede reembolsar con isapres o fonasa' },
+    { label: '💵 Medios de pago aceptados', query: 'aceptan transferencia o efectivo los profesionales' },
     { label: '📋 Registro Superintendencia SIS', query: 'estan inscritos en la superintendencia de salud' }
   ],
+  coordinacion: [
+    { label: '🤝 ¿Qué es el puente directo?', query: 'como funciona el puente directo entre la familia y el tens' },
+    { label: '📋 Delegar la gestión a la dueña', query: 'pueden coordinar ustedes los turnos por mi' },
+    { label: '🔄 Reemplazos garantizados 24/7', query: 'que pasa si un tens no puede asistir a un turno' },
+    { label: '💬 Solicitar propuesta a la administración', isWhatsApp: true, customText: 'Hola administración de Visalud, necesito solicitar el servicio de Coordinación Integral de Turnos para mi familiar' }
+  ],
   cobertura: [
-    { label: '📍 Osorno Urbano (Rahue, Francke, Centro)', query: 'que sectores atienden en osorno' },
-    { label: '🌾 Zonas rurales o alrededores', query: 'atienden en sectores rurales como cancura o puyehue' },
-    { label: '🚗 ¿Cobran traslado?', query: 'el valor incluye traslado dentro de osorno' }
+    { label: '📍 Osorno Urbano (Centro, Oriente, Rahue)', query: 'que sectores atienden en osorno' },
+    { label: '🌾 Francke, Kolbe, Ovejería', query: 'atienden en francke y ovejería' },
+    { label: '🚗 ¿Los TENS van a domicilio?', query: 'el servicio es 100% a domicilio en osorno' }
   ]
 }
 
@@ -94,95 +94,123 @@ function getVisaludClinicalResponse(query) {
   ) {
     return {
       isEmergency: true,
-      text: `⚠️ **ALERTA DE SEGURIDAD CLÍNICA**:\n\nSi la persona presenta compromiso de conciencia, dolor agudo en el pecho, dificultad respiratoria severa o sangrado incontrolable, se trata de una urgencia médica vital.\n\nPor favor comunícate de inmediato con el **SAMU (Llama al 131)** o dirígete a la Urgencia del **Hospital Base San José de Osorno**.\n\nVisalud brinda atención domiciliaria programada y cuidados continuos, no servicios de rescate de riesgo vital inmediato.`,
+      text: `⚠️ **ALERTA DE SEGURIDAD CLÍNICA**:\n\nSi la persona presenta compromiso de conciencia, dolor agudo en el pecho, dificultad respiratoria severa o sangrado incontrolable, se trata de una urgencia médica vital.\n\nPor favor comunícate de inmediato con el **SAMU (Llama al 131)** o dirígete a la Urgencia del **Hospital Base San José de Osorno**.\n\nVisalud es un puente para atención y cuidados programados, no un servicio de rescate de ambulancias o urgencia vital inmediata.`,
       actions: [
         { label: '📞 Llamar SAMU 131', url: 'tel:131', isDanger: true },
-        { label: '💬 Consultar disponibilidad WhatsApp', isWhatsApp: true, customText: 'Hola Visalud, tengo una consulta urgente sobre atención clínica en Osorno' }
+        { label: '💬 Consultar disponibilidad WhatsApp', isWhatsApp: true, customText: 'Hola Visalud, tengo una consulta urgente sobre disponibilidad de TENS en Osorno' }
       ]
     }
   }
 
-  // 2. Curaciones, heridas, escaras, puntos
+  // 2. Modalidades de Turnos: 6 horas (Medio Turno) y 12 horas (Turno Completo / Vigilia)
   if (
-    q.includes('curacion') ||
-    q.includes('herida') ||
-    q.includes('escara') ||
-    q.includes('ulcera') ||
-    q.includes('puntos') ||
-    q.includes('pie diabetico') ||
-    q.includes('quemadura')
+    q.includes('6 hora') ||
+    q.includes('6 hrs') ||
+    q.includes('medio turno') ||
+    q.includes('12 hora') ||
+    q.includes('12 hrs') ||
+    q.includes('turno completo') ||
+    q.includes('vigilia') ||
+    q.includes('noche') ||
+    q.includes('horario')
   ) {
     return {
-      text: `🩹 **Curaciones Avanzadas a Domicilio en Osorno**:\n\nEn Visalud contamos con profesionales de enfermería expertos en el manejo y cicatrización de heridas complejas:\n\n• **Úlceras por presión (escaras)** en pacientes postrados o con movilidad reducida.\n• **Curación de heridas quirúrgicas** y retiro seguro de puntos / grapas.\n• **Manejo de pie diabético** y quemaduras de grado I y II.\n• Evaluación de tejidos, control de exudado e indicación de apósitos de última tecnología.\n\nTodos nuestros procedimientos utilizan **material e insumos estériles** certificados.`,
+      text: `⏱️ **Modalidades de Turnos por Horas con TENS en Osorno**:\n\nNuestros servicios de cuidado de adulto mayor se contratan por horas bajo dos modalidades principales:\n\n1. **Medio Turno (6 Horas)**:\n• Asistencia en rutinas de mañana o tarde.\n• Aseo y confort, baño asistido y cambio de ropa.\n• Apoyo en alimentación y paseos suaves.\n• Administración rigurosa de medicamentos según indicación médica.\n\n2. **Turno Completo (12 Horas - Diurno o Vigilia Nocturna)**:\n• Cuidado continuo e intensivo durante el día (ej. 08:00 a 20:00) o noche completa.\n• Control periódico de signos vitales (presión, glicemia, saturometría).\n• Movilización en cama cada 2 horas para prevención de escaras.\n• Supervisión activa del descanso nocturno para resguardo del paciente y tranquilidad familiar.`,
       actions: [
-        { label: '📲 Agendar evaluación de herida por WhatsApp', isWhatsApp: true, customText: 'Hola Visalud, requiero una curación a domicilio en Osorno. ¿Qué disponibilidad tienen?' },
-        { label: '💰 ¿Se reembolsa con Isapre/Fonasa?', query: 'se puede reembolsar en isapre o fonasa' }
+        { label: '👨‍⚕️ Ver cuidadores TENS disponibles', query: 'ver equipo de profesionales' },
+        { label: '💳 ¿Cómo se coordinan y pagan?', query: 'como es el pago y si atienden por isapre o particular' },
+        { label: '📋 ¿Prefieres que Visalud coordine los turnos?', query: 'pueden coordinar ustedes los turnos por mi' }
       ]
     }
   }
 
-  // 3. Cuidados Adulto Mayor, Postrados, Turnos de Día / Noche
+  // 3. Cuidados Generales de Adulto Mayor, Paciente Postrado, Alzheimer
   if (
     q.includes('adulto mayor') ||
     q.includes('abuelo') ||
     q.includes('abuela') ||
     q.includes('postrado') ||
     q.includes('cuidador') ||
-    q.includes('turno') ||
-    q.includes('noche') ||
-    q.includes('acompanamiento') ||
+    q.includes('cuidado') ||
     q.includes('alzheimer') ||
-    q.includes('demencia')
+    q.includes('demencia') ||
+    q.includes('aseo') ||
+    q.includes('bano') ||
+    q.includes('escara')
   ) {
     return {
-      text: `👵 **Cuidados Integrales y Acompañamiento del Adulto Mayor**:\n\nBrindamos tranquilidad a las familias osorninas con personal calificado y de gran calidad humana:\n\n• **Turnos personalizados**: Atenciones puntuales, turnos diurnos (4, 8 o 12 hrs) o turnos nocturnos de vigilia.\n• **Aseo y confort**: Baño en cama, higiene de cavidades, prevención de caídas y cambios posturales para prevenir escaras.\n• **Administración de fármacos** según horario médico prescrito.\n• Manejo y cambio de sondas (Foley, nasogástricas) y ostomías.\n• Acompañamiento empático para pacientes con Alzheimer, demencias o secuelas de ACV.`,
+      text: `👵 **Cuidado Domiciliario de Adulto Mayor por TENS Certificados**:\n\nVisalud conecta a tu familia con Técnicos en Enfermería de Nivel Superior (TENS) en Osorno con sólida formación geriátrica:\n\n• **Acompañamiento humanizado** y respeto por el ritmo del adulto mayor.\n• **Aseo y confort integral**: Baño en cama o asistido en ducha, higiene bucal y cambio de pañal.\n• **Prevención de lesiones por presión**: Lubricación de piel y cambios de posición programados.\n• **Manejo de tratamientos**: Administración de fármacos orales, control glicémico y signos vitales.\n• **Pacientes de alta dependencia**: Manejo cuidadoso de sondas, ostomías y secuelas de ACV o demencia.`,
       actions: [
-        { label: '📲 Coordinar turnos de cuidado por WhatsApp', isWhatsApp: true, customText: 'Hola Visalud, quisiera consultar disponibilidad y planes para el cuidado de un adulto mayor en Osorno' },
-        { label: '📋 ¿Los profesionales están certificados?', query: 'estan inscritos en la superintendencia de salud' }
+        { label: '⏱️ Ver turnos de 6h y 12h', query: 'que incluye el medio turno de 6 horas' },
+        { label: '💳 Ver condiciones de pago particular', query: 'como es el pago y si atienden por isapre o particular' },
+        { label: '📲 Contactar coordinación por WhatsApp', isWhatsApp: true, customText: 'Hola Visalud, quisiera consultar por cuidadores TENS para mi familiar en Osorno' }
       ]
     }
   }
 
-  // 4. Inyecciones, sueros, vías venosas
+  // 4. Pagos, Isapre, Fonasa, Reembolsos y Condiciones Particulares
   if (
-    q.includes('inyeccion') ||
-    q.includes('suero') ||
-    q.includes('intramuscular') ||
-    q.includes('medicamento') ||
-    q.includes('neurobionta') ||
-    q.includes('via') ||
-    q.includes('antibiotico') ||
-    q.includes('endovenoso')
-  ) {
-    return {
-      text: `💉 **Administración de Inyectables y Sueroterapia a Domicilio**:\n\nRealizamos la aplicación de fármacos en la comodidad de tu hogar bajo estricta prescripción médica:\n\n• Inyecciones intramusculares (ej. Neurobionta, analgésicos, antiinflamatorios, anticonceptivos).\n• Instalación de vías venosas periféricas e hidratación con sueros.\n• Terapia antibiótica endovenosa programada.\n• Control de signos vitales (presión arterial, saturación, frecuencia cardíaca y glicemia capilar).\n\n*(Nota: Se requiere orden médica para administración de fármacos).*`,
-      actions: [
-        { label: '📲 Solicitar postura de inyección por WhatsApp', isWhatsApp: true, customText: 'Hola Visalud, requiero una inyección/suero a domicilio en Osorno con orden médica' }
-      ]
-    }
-  }
-
-  // 5. Precios, Fonasa, Isapre, Reembolso y Boletas
-  if (
+    q.includes('isapre') ||
+    q.includes('fonasa') ||
+    q.includes('reembolso') ||
+    q.includes('pago') ||
+    q.includes('pagar') ||
     q.includes('precio') ||
     q.includes('valor') ||
-    q.includes('cuanto cuesta') ||
-    q.includes('cobran') ||
-    q.includes('fonasa') ||
-    q.includes('isapre') ||
-    q.includes('reembolso') ||
-    q.includes('boleta') ||
-    q.includes('seguro')
+    q.includes('cuanto cobra') ||
+    q.includes('transferencia') ||
+    q.includes('efectivo') ||
+    q.includes('tarjeta')
   ) {
     return {
-      text: `💰 **Valores y Cobertura de Reembolso (Fonasa / Isapre)**:\n\n• **Reembolsos**: Emitimos **boleta de honorarios profesional médica** con el código de prestación clínico correspondiente, lo que te permite tramitar el reembolso en tu **Isapre** (Banmédica, Colmena, Consalud, CruzBlanca, Vida Tres, Esencial) o en tu **seguro complementario de salud**.\n\n• **Aranceles**: Los valores dependen del tipo de servicio, tiempo requerido y si incluye insumos clínicos específicos (apósitos especiales, sueros, etc.).\n\n¿Deseas que te coticemos de inmediato según el caso de tu familiar?`,
+      text: `💳 **Transparencia en Pagos: Servicio Particular y Directo**:\n\nEn Visalud somos un puente directo entre tu familia y el profesional técnico, garantizando máxima claridad:\n\n• **Servicio Particular**: Es un acuerdo directo entre la familia y el TENS.\n• **Sin Isapres ni reembolsos**: No se gestionan reembolsos institucionales ni bonos Isapre/Fonasa.\n• **Medios de pago acordados con el TENS**: La familia pacta y cancela el valor de los turnos directamente con el profesional mediante **transferencia bancaria**, **efectivo** o **tarjeta débito/crédito** (según las opciones que disponga el técnico).\n• **Sin cobros de suscripción para la familia**: La plataforma es libre de comisiones ocultas.`,
       actions: [
-        { label: '📲 Cotizar servicio exacto por WhatsApp', isWhatsApp: true, customText: 'Hola Visalud, quisiera cotizar un servicio de enfermería y saber el arancel para reembolso' }
+        { label: '⏱️ Consultar turnos de 6h y 12h', query: 'que incluye el medio turno de 6 horas' },
+        { label: '📋 ¿Y si quiero que Visalud gestione los turnos?', query: 'pueden coordinar ustedes los turnos por mi' },
+        { label: '👨‍⚕️ Ver lista de TENS', query: 'ver equipo de profesionales' }
       ]
     }
   }
 
-  // 6. Registro Superintendencia de Salud (SIS)
+  // 5. Coordinación Delegada con la Dueña / Administración de Visalud
+  if (
+    q.includes('coordinar') ||
+    q.includes('coordinacion') ||
+    q.includes('duena') ||
+    q.includes('administracion') ||
+    q.includes('mes') ||
+    q.includes('semanal') ||
+    q.includes('24/7') ||
+    q.includes('reemplazo') ||
+    q.includes('gestion') ||
+    q.includes('delegar')
+  ) {
+    return {
+      text: `📋 **Servicio de Coordinación Integral (Administración Visalud)**:\n\n¿Tu familiar necesita cobertura continua o no tienes tiempo para coordinar turnos individuales con los TENS?\n\nLa **Administración de Visalud** ofrece un servicio gestionado donde nosotros nos encargamos de todo:\n\n✅ **Armado de nómina y calendario**: Planificamos la rotación de turnos (6h, 12h o 24/7 continuo).\n✅ **Reemplazos garantizados**: Si un TENS presenta una emergencia o licencia, enviamos inmediatamente a otro técnico calificado sin dejar a tu familiar desatendido.\n✅ **Supervisión continua**: Control de asistencia, bitácora de novedades y contacto directo con la familia.\n\n*Este servicio de coordinación delegada es atendido directamente por la Coordinación Central de Visalud.*`,
+      actions: [
+        { label: '💬 Hablar con Coordinación Visalud', isWhatsApp: true, customText: 'Hola Administración de Visalud, quisiera solicitar información sobre el servicio de Coordinación Integral de Turnos para mi familiar' },
+        { label: '👵 Prefiero coordinar yo directamente con un TENS', query: 'como funciona el puente directo entre la familia y el tens' }
+      ]
+    }
+  }
+
+  // 6. Modelo de Puente Directo
+  if (
+    q.includes('puente') ||
+    q.includes('como funciona') ||
+    q.includes('directo') ||
+    q.includes('intermedia')
+  ) {
+    return {
+      text: `🤝 **¿Cómo funciona el Puente Directo de Visalud?**:\n\n1. **Exploras el directorio**: Revisas los perfiles de los TENS certificados, su experiencia en adultos mayores y los sectores que cubren en Osorno.\n2. **Contactas por WhatsApp con un clic**: Hablas directamente con el técnico seleccionado y le planteas los requerimientos de tu familiar.\n3. **Acuerdan libremente turnos y pago**: Coordinan si necesitan medio turno (6h) o turno completo (12h) y el medio de pago directo (transferencia o efectivo).\n\n*Nota: La administración de Visalud solo interviene si la familia solicita el servicio de Coordinación Integral para delegar la gestión de turnos continuos.*`,
+      actions: [
+        { label: '👨‍⚕️ Ver cuidadores TENS en Osorno', query: 'ver equipo de profesionales' },
+        { label: '📋 Consultar por Coordinación Delegada', query: 'pueden coordinar ustedes los turnos por mi' }
+      ]
+    }
+  }
+
+  // 7. Registro Superintendencia de Salud (SIS)
   if (
     q.includes('superintendencia') ||
     q.includes('sis') ||
@@ -192,15 +220,15 @@ function getVisaludClinicalResponse(query) {
     q.includes('confianza')
   ) {
     return {
-      text: `📋 **Seguridad Clínica y Registro Oficial SIS**:\n\nTodos los profesionales de Visalud (Enfermeras Universitarias y Técnicos en Enfermería de Nivel Superior - TENS) cuentan con:\n\n✅ Título profesional validado por universidades o centros acreditados en Chile.\n✅ Inscripción activa en el **Registro Nacional de Prestadores Individuales de la Superintendencia de Salud (SIS)**.\n✅ Experiencia clínica comprobada en atención hospitalaria y domiciliaria en la Región de Los Lagos.`,
+      text: `📋 **Seguridad y Registro Oficial Superintendencia (SIS)**:\n\nTodos los Técnicos en Enfermería de Nivel Superior (TENS) que integran el directorio de Visalud cuentan con:\n\n✅ Título oficial de Técnico de Nivel Superior en Enfermería validado en Chile.\n✅ Inscripción vigente en el **Registro Nacional de Prestadores Individuales de la Superintendencia de Salud (SIS)**.\n✅ Experiencia en atención a personas mayores, trato humanizado y seguimiento familiar.`,
       actions: [
-        { label: '👨‍⚕️ Ver equipo en la web', query: 'ver equipo de profesionales' },
-        { label: '📲 Hablar con supervisión clínica', isWhatsApp: true, customText: 'Hola Visalud, quisiera coordinar una visita clínica' }
+        { label: '👨‍⚕️ Ver equipo TENS en la web', query: 'ver equipo de profesionales' },
+        { label: '💬 Consultar con Coordinación', isWhatsApp: true, customText: 'Hola Visalud, quisiera verificar la cobertura de TENS para mi familiar' }
       ]
     }
   }
 
-  // 7. Cobertura en Osorno y sectores
+  // 8. Cobertura en Osorno y sectores
   if (
     q.includes('sector') ||
     q.includes('cobertura') ||
@@ -209,49 +237,51 @@ function getVisaludClinicalResponse(query) {
     q.includes('rahue') ||
     q.includes('francke') ||
     q.includes('centro') ||
-    q.includes('pilauco') ||
-    q.includes('rural') ||
-    q.includes('traslado')
+    q.includes('oriente') ||
+    q.includes('kolbe') ||
+    q.includes('ovejería') ||
+    q.includes('bellavista')
   ) {
     return {
-      text: `📍 **Cobertura Geográfica en Osorno y Alrededores**:\n\nAtendemos en todo el radio urbano de **Osorno**, incluyendo:\n\n• Centro y Sector Oriente\n• Rahue Bajo y Rahue Alto\n• Francke y Kolbe\n• Ovejería y Bellavista\n• Pilauco y Las Quemas\n\n*(Para sectores rurales como Cancura, Puyehue o San Pablo, coordinamos visitas según factibilidad de traslado).*`,
+      text: `📍 **Cobertura Domiciliaria en Osorno Urbano**:\n\nLos TENS de nuestra red cubren las diferentes zonas de la ciudad de Osorno:\n\n• Sector Centro y Sector Oriente\n• Rahue Alto y Rahue Bajo\n• Francke, Kolbe y Bellavista\n• Ovejería, Pilauco y Las Quemas\n\n*(Cada TENS especifica en su ficha sus sectores preferentes o disponibilidad de traslado en la ciudad).*`,
       actions: [
-        { label: '📲 Consultar por mi sector en WhatsApp', isWhatsApp: true, customText: 'Hola Visalud, quisiera saber si tienen cobertura domiciliaria en mi sector de Osorno' }
+        { label: '👨‍⚕️ Ver TENS por sector', query: 'ver equipo de profesionales' },
+        { label: '💬 Consultar disponibilidad inmediata', isWhatsApp: true, customText: 'Hola Visalud, quisiera consultar si tienen un TENS disponible en mi sector de Osorno' }
       ]
     }
   }
 
-  // 8. Saludos / Hola / Qué haces
+  // 9. Saludos / Hola
   if (
     q.includes('hola') ||
     q.includes('buenas') ||
     q.includes('buenos dias') ||
     q.includes('buenas tardes') ||
     q.includes('saludos') ||
-    q.includes('que haces') ||
     q.includes('ayuda')
   ) {
     return {
-      text: `¡Hola de nuevo! 😊 Soy **Integrity**, el asistente virtual de Visalud.\n\nPuedo orientarte con las preguntas más frecuentes sobre nuestros servicios de salud a domicilio en Osorno:\n\n1. 🩹 **Curaciones y tratamiento de heridas/escaras**\n2. 👵 **Cuidados y turnos para adultos mayores o postrados**\n3. 💉 **Inyecciones, sueroterapia y medicamentos**\n4. 💰 **Reembolsos en Fonasa, Isapres y boletas médicas**\n5. 📲 **Conexión directa con una enfermera por WhatsApp**\n\n¿Cuál de estas áreas te gustaría consultar?`,
+      text: `¡Hola! 😊 Soy **Integrity**, asistente virtual de Visalud.\n\nTe ayudo a resolver dudas y conectar con **TENS certificados en cuidado de adultos mayores a domicilio en Osorno**:\n\n1. ⏱️ **Turnos de 6 hrs (medio) y 12 hrs (completo / noche)**\n2. 💳 **Condiciones de pago particular (sin Isapre)**\n3. 📋 **Servicio de Coordinación Integral con la Administración**\n4. 📍 **Sectores de cobertura en Osorno**\n\n¿Qué te gustaría consultar?`,
       actions: [
-        { label: '🩹 Curaciones', query: 'curacion de heridas' },
-        { label: '👵 Cuidados Adulto Mayor', query: 'cuidados adulto mayor' },
-        { label: '💰 Reembolsos', query: 'como funciona el reembolso con isapres' },
-        { label: '📲 Hablar por WhatsApp', isWhatsApp: true }
+        { label: '⏱️ Turnos de 6h y 12h', query: 'que incluye el medio turno de 6 horas' },
+        { label: '💳 Pagos y condiciones', query: 'como es el pago y si atienden por isapre o particular' },
+        { label: '📋 Coordinación Delegada', query: 'pueden coordinar ustedes los turnos por mi' },
+        { label: '💬 Hablar con Coordinación', isWhatsApp: true }
       ]
     }
   }
 
-  // 9. Respuesta por defecto guiada
+  // 10. Respuesta por defecto
   return {
-    text: `Entiendo tu consulta sobre *"${query}"*. En Visalud adaptamos cada atención a las necesidades de salud del paciente en Osorno.\n\nPara darte una respuesta clínica personalizada o agendar una visita a domicilio de inmediato, te recomiendo comunicarte directamente con nuestro equipo de enfermería por WhatsApp:`,
+    text: `Entiendo tu consulta sobre *"${query}"*. En Visalud estamos dedicados al **cuidado del adulto mayor a domicilio en Osorno por TENS certificados** (por medios turnos de 6 hrs o turnos completos de 12 hrs).\n\nPara orientarte en detalle sobre la disponibilidad o cotizar turnos, puedes contactar directamente a nuestra Coordinación General por WhatsApp:`,
     actions: [
-      { label: '💬 Consultar directamente por WhatsApp', isWhatsApp: true, customText: `Hola Visalud, quisiera consultar sobre: "${query}" para atención en Osorno` },
-      { label: '🩹 Ver servicios de curación', query: 'curacion de heridas' },
-      { label: '👵 Ver cuidados de adulto mayor', query: 'cuidados adulto mayor' }
+      { label: '💬 Contactar por WhatsApp', isWhatsApp: true, customText: `Hola Visalud, quisiera consultar sobre: "${query}" para el cuidado de un adulto mayor en Osorno` },
+      { label: '⏱️ Ver turnos de 6h y 12h', query: 'que incluye el medio turno de 6 horas' },
+      { label: '💳 Condiciones de pago particular', query: 'como es el pago y si atienden por isapre o particular' }
     ]
   }
 }
+
 
 export default function IntegrityWidget() {
   const [isOpen, setIsOpen] = useState(false)

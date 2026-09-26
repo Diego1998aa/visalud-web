@@ -2,39 +2,21 @@ import { useState, useMemo, useRef, useEffect } from 'react'
 import { professionalsService } from '../services/professionalsService.js'
 import { defaultProfessionals } from '../data/defaultProfessionals.js'
 
+// Número oficial de la dueña / administración para coordinación delegada
+const COORDINATION_WHATSAPP = '56968016334'
+
 const servicesData = [
   {
     id: 'all',
-    title: 'Todos los servicios',
-    shortName: 'Todos',
-    badge: 'Atención Integral',
-    description: 'Conoce a todo el equipo de enfermería, TENS y especialistas disponibles para atención en clínica y a domicilio en Osorno.',
+    title: 'Todos los TENS de Cuidado Mayor',
+    shortName: 'Todos los TENS',
+    badge: 'Directorio Verificado',
+    description: 'Encuentra y contacta de forma directa a Técnicos en Enfermería de Nivel Superior (TENS) en Osorno, especializados en la atención y compañía de personas mayores.',
     features: [
-      'Profesionales certificados por la Superintendencia de Salud',
-      'Atención en Centro Clínico y a Domicilio en Osorno',
-      'Coordinación directa e inmediata por WhatsApp',
-      'Boletas válidas para reembolso Fonasa e Isapre',
-    ],
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <rect x="3" y="3" width="7" height="7" rx="1.5" />
-        <rect x="14" y="3" width="7" height="7" rx="1.5" />
-        <rect x="14" y="14" width="7" height="7" rx="1.5" />
-        <rect x="3" y="14" width="7" height="7" rx="1.5" />
-      </svg>
-    ),
-  },
-  {
-    id: 'cuidados-adulto-mayor',
-    title: 'Cuidados de Adulto Mayor',
-    shortName: 'Cuidados Adulto Mayor',
-    badge: 'Acompañamiento & Confort',
-    description: 'Atención humanizada, asistencia en la vida diaria, control de signos vitales, administración de fármacos y compañía diurna y nocturna a domicilio.',
-    features: [
-      'Turnos diurnos, nocturnos y cobertura 24 horas',
-      'Asistencia dedicada en aseo, confort y alimentación',
-      'Control riguroso de signos vitales y glicemia',
-      'Trato cálido y comunicación constante con la familia',
+      'Técnicos certificados ante la Superintendencia de Salud (SIS)',
+      'Modalidades flexibles: Medio turno (6 hrs) y Turno completo (12 hrs)',
+      'Puente directo: Coordinación y pago 100% directo con el profesional',
+      'Atención particular sin trámites de Isapre ni reembolsos burocráticos',
     ],
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -45,45 +27,86 @@ const servicesData = [
     ),
   },
   {
-    id: 'inyecciones',
-    title: 'Inyecciones y Tratamientos',
-    shortName: 'Inyecciones',
-    badge: 'Procedimientos Clínicos',
-    description: 'Administración rápida, segura y estéril de inyecciones intramusculares, subcutáneas, endovenosas, sueroterapia y fármacos bajo indicación médica.',
+    id: 'medio-turno',
+    title: 'Medio Turno (6 Horas)',
+    shortName: 'Medio Turno (6 hrs)',
+    badge: 'Rutinas & Acompañamiento',
+    description: 'Ideal para apoyo diurno o vespertino: asistencia en el despertar, baño y confort, administración puntual de fármacos, preparación o asistencia en comidas y estimulación.',
     features: [
-      'Inyecciones intramusculares, subcutáneas y EV',
-      'Administración de Neurobionta, analgésicos y sueros',
-      'Técnica 100% aséptica y material clínico sellado',
-      'Atención express en box o en la comodidad del hogar',
+      '6 horas continuas de cuidado y compañía a domicilio',
+      'Asistencia dedicada en aseo personal, baño y vestimenta',
+      'Administración de medicamentos según indicación médica',
+      'Paseos asistidos, estimulación cognitiva y comunicación familiar',
     ],
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d="m18 2 4 4" />
-        <path d="m17 7 3-3" />
-        <path d="M19 9 8.7 19.3c-.4.4-1 .4-1.4 0l-2.6-2.6c-.4-.4-.4-1 0-1.4L15 5" />
-        <path d="m9 11 4 4" />
-        <path d="m5 19-3 3" />
-        <path d="m14 4 6 6" />
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
       </svg>
     ),
   },
   {
-    id: 'curaciones-de-heridas',
-    title: 'Curaciones de Heridas',
-    shortName: 'Curaciones de Heridas',
-    badge: 'Técnica Aséptica & Avanzada',
-    description: 'Tratamiento y curación simple y avanzada de heridas quirúrgicas, úlceras vasculares, escaras por presión, quemaduras y retiro de puntos.',
+    id: 'turno-completo',
+    title: 'Turno Completo (12 Horas)',
+    shortName: 'Turno Completo (12 hrs)',
+    badge: 'Cuidado Integral Continuo',
+    description: 'Atención integral durante toda la jornada diurna (ej. 08:00 a 20:00). Diseñado para personas mayores semivalentes o de alta dependencia que requieren resguardo constante.',
     features: [
-      'Tratamiento de úlceras venosas, escaras y heridas',
-      'Manejo de heridas quirúrgicas y retiro de suturas',
-      'Uso de apósitos estériles avanzados e hidrocoloides',
-      'Evaluación y seguimiento clínico de cicatrización',
+      '12 horas continuas de asistencia clínica y humana',
+      'Control riguroso de signos vitales (presión, glicemia, oximetría)',
+      'Movilización en cama y prevención activa de úlceras por presión',
+      'Alimentación asistida, hidratación y soporte en actividades diarias',
     ],
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d="M12 2v20" />
-        <path d="M2 12h20" />
-        <rect x="4" y="4" width="16" height="16" rx="4" />
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2" />
+        <path d="M12 20v2" />
+        <path d="m4.93 4.93 1.41 1.41" />
+        <path d="m17.66 17.66 1.41 1.41" />
+        <path d="M2 12h2" />
+        <path d="M20 12h2" />
+        <path d="m6.34 17.66-1.41 1.41" />
+        <path d="m19.07 4.93-1.41 1.41" />
+      </svg>
+    ),
+  },
+  {
+    id: 'noche-vigilia',
+    title: 'Vigilia Nocturna (12 Horas)',
+    shortName: 'Vigilia Nocturna',
+    badge: 'Tranquilidad Familiar',
+    description: 'Supervisión activa durante toda la noche (ej. 20:00 a 08:00) para garantizar el descanso seguro del paciente y el alivio reparador de los familiares a cargo.',
+    features: [
+      '12 horas de vigilia activa y supervisión del descanso',
+      'Cambios de postura programados para pacientes postrados',
+      'Asistencia en idas al baño y manejo de incontinencia nocturna',
+      'Respuesta inmediata ante desorientación, caídas o emergencias',
+    ],
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+      </svg>
+    ),
+  },
+  {
+    id: 'coordinacion',
+    title: 'Gestión y Coordinación de Turnos',
+    shortName: 'Coordinación Visalud',
+    badge: 'Servicio Delegado',
+    description: '¿No tienes tiempo para coordinar turnos diarios con los cuidadores? La administración de Visalud organiza el calendario, cubre reemplazos y supervisa la atención continua.',
+    features: [
+      'Coordinación de semanas completas o régimen 24/7 continuo',
+      'Reemplazos garantizados ante licencias o imprevistos de un TENS',
+      'Supervisión y control de asistencia por la coordinación de Visalud',
+      'Ideal para familias con horarios exigentes o viviendo fuera de Osorno',
+    ],
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+        <line x1="16" y1="2" x2="16" y2="6" />
+        <line x1="8" y1="2" x2="8" y2="6" />
+        <line x1="3" y1="10" x2="21" y2="10" />
       </svg>
     ),
   },
@@ -125,20 +148,29 @@ export default function ServicesAndProfessionals() {
     }
   }, [])
 
-  // Filtrado de profesionales activos según el servicio seleccionado y el texto de búsqueda
+  // Filtrado de profesionales según el turno/servicio seleccionado y texto de búsqueda
   const filteredProfessionals = useMemo(() => {
     return professionals
       .filter((pro) => pro.status !== 'inactive')
       .filter((pro) => {
-        const matchesService =
-          selectedService === 'all' || pro.serviceId === selectedService
+        // Filtrar por modalidad de turno
+        let matchesService = true
+        if (selectedService === 'medio-turno') {
+          matchesService = pro.turnos?.includes('medio-turno') || pro.attention?.toLowerCase().includes('medio') || pro.attention?.toLowerCase().includes('6')
+        } else if (selectedService === 'turno-completo') {
+          matchesService = pro.turnos?.includes('turno-completo') || pro.attention?.toLowerCase().includes('12') || pro.attention?.toLowerCase().includes('completo')
+        } else if (selectedService === 'noche-vigilia') {
+          matchesService = pro.turnos?.includes('noche-vigilia') || pro.specialty?.toLowerCase().includes('vigilia') || pro.attention?.toLowerCase().includes('nocturno') || pro.attention?.toLowerCase().includes('noche')
+        } else if (selectedService === 'coordinacion') {
+          // En modo coordinación mostramos todos para que conozcan al equipo que se coordina
+          matchesService = true
+        }
 
         const query = searchTerm.toLowerCase().trim()
         const matchesSearch =
           !query ||
           pro.name?.toLowerCase().includes(query) ||
           pro.specialty?.toLowerCase().includes(query) ||
-          pro.serviceName?.toLowerCase().includes(query) ||
           pro.address?.toLowerCase().includes(query) ||
           pro.bio?.toLowerCase().includes(query)
 
@@ -146,7 +178,7 @@ export default function ServicesAndProfessionals() {
       })
   }, [professionals, selectedService, searchTerm])
 
-  // Reiniciar el índice si la lista filtrada cambia y el índice queda fuera de rango
+  // Reiniciar el índice si la lista filtrada cambia
   useEffect(() => {
     setCurrentIndex(0)
     if (carouselTrackRef.current) {
@@ -176,13 +208,23 @@ export default function ServicesAndProfessionals() {
     scrollToIndex(nextIdx)
   }
 
-  // Generador de enlace directo a WhatsApp con mensaje contextualizado
+  // Generador de enlace directo a WhatsApp con mensaje contextualizado para TENS
   const buildWhatsAppLink = (pro) => {
-    const message = `Hola ${pro.name}, me comunico a través de Visalud para consultar sobre su servicio de ${pro.serviceName}. ¿Tiene disponibilidad para una cita?`
+    let modalidadTexto = 'un turno de cuidado'
+    if (selectedService === 'medio-turno') modalidadTexto = 'medio turno (6 horas)'
+    else if (selectedService === 'turno-completo') modalidadTexto = 'turno completo (12 horas)'
+    else if (selectedService === 'noche-vigilia') modalidadTexto = 'turno de vigilia nocturna (12 horas)'
+
+    const message = `Hola ${pro.name}, te contacto desde Visalud para consultar tu disponibilidad para el cuidado de un adulto mayor a domicilio por ${modalidadTexto} en Osorno. ¿Podemos coordinar?`
     return `https://wa.me/${pro.whatsapp}?text=${encodeURIComponent(message)}`
   }
 
-  // Servicio activo actual para mostrar detalles en la cabecera del carrusel
+  // Enlace directo a la Administración para coordinar turnos
+  const buildCoordinationWhatsAppLink = () => {
+    const message = `Hola, me comunico desde la página de Visalud Osorno. Necesito solicitar información sobre el Servicio de Coordinación y Gestión Integral de Turnos para mi familiar.`
+    return `https://wa.me/${COORDINATION_WHATSAPP}?text=${encodeURIComponent(message)}`
+  }
+
   const currentServiceObj = servicesData.find((s) => s.id === selectedService) || servicesData[0]
 
   return (
@@ -191,22 +233,59 @@ export default function ServicesAndProfessionals() {
       <div id="profesionales" className="section-anchor" tabIndex={-1} aria-hidden="true" />
 
       <div className="services-pro-container">
-        {/* Cabecera Principal */}
+        {/* Cabecera Principal de la Sección de Cuidado del Adulto Mayor */}
         <header className="services-pro-header">
           <div className="services-pro-badge">
             <span className="services-pro-badge-dot" />
-            <span>Servicios Clínicos & Acompañamiento Domiciliario</span>
+            <span>Atención Especializada • Cuidado del Adulto Mayor en Osorno</span>
           </div>
           <h2 id="services-pro-title" className="services-pro-title">
-            Encuentra al profesional indicado para tus cuidados
+            Cuidado Domiciliario de Adulto Mayor por TENS Certificados
           </h2>
           <p className="services-pro-subtitle">
-            Selecciona el servicio que necesitas: <strong>Cuidados de adulto mayor</strong>, <strong>Inyecciones</strong> o <strong>Curaciones de heridas</strong>.
-            Comunícate de forma inmediata por <strong>WhatsApp</strong> o llamada directa para coordinar la atención a domicilio o en clínica.
+            En <strong>Visalud</strong> somos un puente directo y transparente entre tu familia y <strong>Técnicos en Enfermería (TENS)</strong> de absoluta confianza.
+            Contrata directamente por horas: <strong>Medio Turno (6 hrs)</strong> o <strong>Turno Completo (12 hrs)</strong>.
           </p>
         </header>
 
-        {/* Barra de Búsqueda Rápida */}
+        {/* ================= BLOQUE DE TRANSPARENCIA: CÓMO FUNCIONA VISALUD ================= */}
+        <div className="bridge-explainer-banner">
+          <div className="bridge-explainer-header">
+            <span className="bridge-badge">Modelo Directo & Transparente</span>
+            <h3 className="bridge-title">¿Cómo funciona la contratación en Visalud?</h3>
+            <p className="bridge-subtitle">
+              Sin cobros de suscripción ni burocracia. La página te conecta de forma directa con los profesionales técnicos.
+            </p>
+          </div>
+
+          <div className="bridge-steps-grid">
+            <div className="bridge-step-card">
+              <div className="bridge-step-num">1</div>
+              <div className="bridge-step-body">
+                <h4>Revisa los perfiles TENS</h4>
+                <p>Elige al profesional según su experiencia geriátrica, sector de cobertura en Osorno y modalidad de turno requerida (6h o 12h).</p>
+              </div>
+            </div>
+
+            <div className="bridge-step-card">
+              <div className="bridge-step-num">2</div>
+              <div className="bridge-step-body">
+                <h4>Coordina directo por WhatsApp</h4>
+                <p>Habla directamente con el TENS para coordinar los días, horarios y requerimientos de salud específicos de tu familiar.</p>
+              </div>
+            </div>
+
+            <div className="bridge-step-card">
+              <div className="bridge-step-num">3</div>
+              <div className="bridge-step-body">
+                <h4>Servicio particular y pago directo</h4>
+                <p>Sin Isapres ni esperas de reembolso. Los acuerdos y métodos de pago (transferencia, efectivo o débito/crédito) se gestionan y pagan directamente al profesional.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Barra de Búsqueda Rápida de TENS */}
         <div className="pro-search-bar-wrapper">
           <div className="pro-search-input-box">
             <span className="pro-search-icon" aria-hidden="true">
@@ -218,10 +297,10 @@ export default function ServicesAndProfessionals() {
             <input
               type="text"
               className="pro-search-input"
-              placeholder="Buscar por especialista, servicio (ej: Adulto mayor, inyecciones, curaciones) o sector..."
+              placeholder="Buscar TENS por nombre, sector en Osorno (ej: Rahue, Oriente, Francke) o especialidad..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              aria-label="Buscar profesional por nombre o servicio"
+              aria-label="Buscar TENS por nombre o sector"
             />
             {searchTerm && (
               <button
@@ -237,16 +316,11 @@ export default function ServicesAndProfessionals() {
           </div>
         </div>
 
-        {/* Pestañas / Chips de Selección de Servicios */}
-        <div className="services-filter-nav" role="tablist" aria-label="Especialidades y Servicios Médicos">
+        {/* Pestañas / Chips de Selección de Modalidad de Turno */}
+        <div className="services-filter-nav" role="tablist" aria-label="Modalidades de Turnos de Cuidado">
           <div className="services-filter-track">
             {servicesData.map((service) => {
-              const activePros = professionals.filter((p) => p.status !== 'inactive')
-              const count = service.id === 'all'
-                ? activePros.length
-                : activePros.filter((p) => p.serviceId === service.id).length
               const isActive = selectedService === service.id
-
               return (
                 <button
                   key={service.id}
@@ -260,18 +334,15 @@ export default function ServicesAndProfessionals() {
                     {service.icon}
                   </span>
                   <span className="service-tab-label">{service.shortName}</span>
-                  <span className="service-tab-count" aria-label={`${count} profesionales`}>
-                    {count}
-                  </span>
                 </button>
               )
             })}
           </div>
         </div>
 
-        {/* Layout en 2 Columnas: Box de Descripción del Servicio a la Izquierda y Tarjetas a la Derecha */}
+        {/* Layout en 2 Columnas: Panel Informativo de la Modalidad y Carrusel de TENS */}
         <div className="services-showcase-split">
-          {/* Columna Izquierda: Panel Moderno del Servicio Activo */}
+          {/* Columna Izquierda: Panel Moderno de la Modalidad Activa */}
           <aside className="service-desc-card">
             <div className="service-desc-card-glow" aria-hidden="true" />
 
@@ -290,10 +361,10 @@ export default function ServicesAndProfessionals() {
             <h3 className="service-desc-title">{currentServiceObj.title}</h3>
             <p className="service-desc-text">{currentServiceObj.description}</p>
 
-            {/* Lista de Beneficios y Garantías */}
+            {/* Lista de Beneficios y Alcances de la Modalidad */}
             {currentServiceObj.features && (
               <div className="service-desc-features">
-                <span className="service-desc-features-label">Garantías & Modalidad:</span>
+                <span className="service-desc-features-label">Alcance del Cuidado a Domicilio:</span>
                 <ul className="service-desc-features-list">
                   {currentServiceObj.features.map((feature, idx) => (
                     <li key={idx} className="service-desc-feature-item">
@@ -309,41 +380,78 @@ export default function ServicesAndProfessionals() {
               </div>
             )}
 
-            {/* Disponibilidad y Contador */}
+            {/* Estado de Disponibilidad */}
             <div className="service-desc-availability-box">
               <div className="availability-status-row">
                 <span className="availability-live-dot" />
-                <span className="availability-status-title">Atención en Osorno y Alrededores</span>
+                <span className="availability-status-title">Servicio Domiciliario en Osorno</span>
               </div>
               <div className="availability-count-badge">
                 {filteredProfessionals.length === 1
-                  ? '1 especialista disponible'
-                  : `${filteredProfessionals.length} especialistas disponibles`}
+                  ? '1 TENS disponible'
+                  : `${filteredProfessionals.length} TENS disponibles`}
               </div>
             </div>
 
-            {/* Llamado de Orientación para Familias */}
+            {/* Llamado a la Coordinación Integral (Dueña) */}
             <div className="service-desc-cta">
-              <a href="#contacto" className="btn-service-coord">
-                <span>¿Dudas? Asesoría para tu familiar</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
+              <a
+                href={buildCoordinationWhatsAppLink()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-service-coord btn-service-coord-whatsapp"
+              >
+                <span className="btn-coord-wa-icon" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                  </svg>
+                </span>
+                <span>Coordinar Turnos por WhatsApp</span>
               </a>
               <p className="service-desc-note">
-                Te orientamos con cariño y sin compromiso para elegir al profesional más adecuado.
+                Si no deseas encargarte de coordinar turnos individuales, la administración de Visalud puede coordinar la cobertura completa de tu familiar.
               </p>
             </div>
           </aside>
 
-          {/* Columna Derecha: Tarjetas de los Profesionales */}
+          {/* Columna Derecha: Tarjetas de los Profesionales TENS */}
           <div className="services-cards-area">
+            {/* Si la pestaña seleccionada es 'coordinacion', mostramos un panel explicativo destacado */}
+            {selectedService === 'coordinacion' && (
+              <div className="coordination-feature-box">
+                <div className="coord-box-badge">Servicio de Coordinación Delegada</div>
+                <h4 className="coord-box-title">Tranquilidad absoluta para tu familia</h4>
+                <p className="coord-box-desc">
+                  Cuando un familiar requiere turnos continuos (varios días a la semana o régimen 24/7), lidiar con calendarios, imprevistos o reemplazos puede ser agotador.
+                  Con nuestro <strong>Servicio de Coordinación Integral</strong>, la administración de Visalud asume la responsabilidad de armar la nómina de TENS, supervisar el cumplimiento de turnos y garantizar reemplazos inmediatos.
+                </p>
+                <div className="coord-box-actions">
+                  <a
+                    href={buildCoordinationWhatsAppLink()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-whatsapp-modern coord-cta-btn"
+                  >
+                    <span className="whatsapp-icon-circle" aria-hidden="true">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                      </svg>
+                    </span>
+                    <span className="whatsapp-text-box">
+                      <span className="whatsapp-btn-sub">Mesa Central Visalud</span>
+                      <span className="whatsapp-btn-main">Hablar con Coordinación de Turnos</span>
+                    </span>
+                  </a>
+                </div>
+              </div>
+            )}
+
             {filteredProfessionals.length > 0 ? (
               <div className="pro-carousel-viewport">
                 {/* Cabecera de control sobre las tarjetas */}
                 <div className="cards-slider-header">
                   <div className="cards-slider-info">
-                    <span className="cards-slider-badge">Equipo Especialista</span>
+                    <span className="cards-slider-badge">TENS Geriátricos Habilitados</span>
                     <span className="cards-slider-counter">
                       Mostrando <strong>{currentIndex + 1}</strong> de {filteredProfessionals.length}
                     </span>
@@ -353,7 +461,7 @@ export default function ServicesAndProfessionals() {
                       type="button"
                       className="cards-slider-btn prev-btn"
                       onClick={handlePrev}
-                      aria-label="Ver profesional anterior"
+                      aria-label="Ver TENS anterior"
                       title="Anterior"
                     >
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -364,7 +472,7 @@ export default function ServicesAndProfessionals() {
                       type="button"
                       className="cards-slider-btn next-btn"
                       onClick={handleNext}
-                      aria-label="Ver profesional siguiente"
+                      aria-label="Ver TENS siguiente"
                       title="Siguiente"
                     >
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -374,12 +482,12 @@ export default function ServicesAndProfessionals() {
                   </div>
                 </div>
 
-                {/* Flechas Flotantes Superpuestas en las Tarjetas para Fácil Desplazamiento */}
+                {/* Flechas Flotantes Superpuestas en las Tarjetas */}
                 <button
                   type="button"
                   className="pro-floating-arrow prev"
                   onClick={handlePrev}
-                  aria-label="Deslizar al profesional anterior"
+                  aria-label="Deslizar al TENS anterior"
                   title="Anterior"
                 >
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
@@ -390,7 +498,7 @@ export default function ServicesAndProfessionals() {
                   type="button"
                   className="pro-floating-arrow next"
                   onClick={handleNext}
-                  aria-label="Deslizar al profesional siguiente"
+                  aria-label="Deslizar al TENS siguiente"
                   title="Siguiente"
                 >
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
@@ -406,7 +514,6 @@ export default function ServicesAndProfessionals() {
                     const container = carouselTrackRef.current
                     const cards = container.querySelectorAll('.pro-card')
                     if (!cards.length) return
-                    // Calcular el índice activo basado en el scroll actual
                     const scrollPos = container.scrollLeft
                     let closestIdx = 0
                     let minDiff = Infinity
@@ -438,10 +545,10 @@ export default function ServicesAndProfessionals() {
                         <div className="pro-card-gradient" />
                         <span className="pro-card-status-pill">
                           <span className="pro-card-status-dot" />
-                          <span>Agenda Abierta</span>
+                          <span>Turnos Disponibles</span>
                         </span>
                         <span className="pro-card-service-chip">
-                          {pro.serviceName}
+                          TENS Adulto Mayor
                         </span>
                       </div>
 
@@ -458,15 +565,15 @@ export default function ServicesAndProfessionals() {
                               </svg>
                               <span>{pro.regNumber}</span>
                             </span>
-                            <span className="pro-card-verified-tag">Habilitado SIS</span>
+                            <span className="pro-card-verified-tag">Superintendencia SIS</span>
                           </div>
                         </div>
 
                         <p className="pro-card-bio">{pro.bio}</p>
 
-                        {/* Información de Contacto y Modalidad */}
+                        {/* Información de Contacto, Turnos y Modalidad */}
                         <div className="pro-card-details-list">
-                          {/* Lugar de Atención */}
+                          {/* Lugar / Cobertura en Osorno */}
                           <div className="pro-detail-item">
                             <span className="pro-detail-icon location-icon" aria-hidden="true">
                               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -475,12 +582,12 @@ export default function ServicesAndProfessionals() {
                               </svg>
                             </span>
                             <div className="pro-detail-content">
-                              <span className="pro-detail-label">Lugar de Atención:</span>
+                              <span className="pro-detail-label">Sectores de atención:</span>
                               <span className="pro-detail-value">{pro.address}</span>
                             </div>
                           </div>
 
-                          {/* Horario y Modalidad */}
+                          {/* Modalidad de Turnos */}
                           <div className="pro-detail-item">
                             <span className="pro-detail-icon clock-icon" aria-hidden="true">
                               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -489,12 +596,12 @@ export default function ServicesAndProfessionals() {
                               </svg>
                             </span>
                             <div className="pro-detail-content">
-                              <span className="pro-detail-label">Horario & Modalidad:</span>
-                              <span className="pro-detail-value">{pro.attention} • <strong className="pro-modality-highlight">{pro.modality}</strong></span>
+                              <span className="pro-detail-label">Turnos disponibles:</span>
+                              <span className="pro-detail-value">{pro.attention}</span>
                             </div>
                           </div>
 
-                          {/* Teléfono / Celular */}
+                          {/* Teléfono directo */}
                           <div className="pro-detail-item">
                             <span className="pro-detail-icon phone-icon" aria-hidden="true">
                               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -502,7 +609,7 @@ export default function ServicesAndProfessionals() {
                               </svg>
                             </span>
                             <div className="pro-detail-content">
-                              <span className="pro-detail-label">Teléfono directo:</span>
+                              <span className="pro-detail-label">Contacto directo:</span>
                               <a
                                 href={`tel:${pro.phone.replace(/\s+/g, '')}`}
                                 className="pro-phone-link"
@@ -514,12 +621,14 @@ export default function ServicesAndProfessionals() {
                           </div>
                         </div>
 
-                        {/* Previsión / Convenio */}
+                        {/* Previsión / Convenio - Transparencia Particular */}
                         <div className="pro-card-convenios-strip">
-                          <span className="convenios-badge">{pro.convenios}</span>
+                          <span className="convenios-badge convenios-particular-badge">
+                            {pro.convenios || 'Particular (Pago directo: transferencia o efectivo)'}
+                          </span>
                         </div>
 
-                        {/* Acciones de Contacto: WhatsApp Moderno & Llamada Directa */}
+                        {/* Acciones de Contacto: WhatsApp Directo al TENS & Llamada */}
                         <div className="pro-card-actions">
                           <a
                             href={buildWhatsAppLink(pro)}
@@ -529,8 +638,8 @@ export default function ServicesAndProfessionals() {
                             aria-label={`Contactar a ${pro.name} por WhatsApp`}
                           >
                             <span className="whatsapp-icon-circle" aria-hidden="true">
-                              <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.586-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.299.144.347.491 1.2.535 1.288.043.088.072.19.014.305-.058.115-.087.187-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.086s1.011.477 1.184.564.289.13.332.202c.045.072.045.42-.099.825zm-3.4-10.416c-4.408 0-7.986 3.578-7.987 7.987 0 1.409.366 2.784 1.062 3.99l-1.131 4.131 4.225-1.108c1.164.635 2.476.974 3.827.975h.004c4.408 0 7.987-3.58 7.988-7.988 0-2.136-.831-4.145-2.344-5.655-1.514-1.512-3.52-2.342-5.644-2.342z" />
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
                               </svg>
                             </span>
                             <span className="whatsapp-text-box">
@@ -563,14 +672,14 @@ export default function ServicesAndProfessionals() {
                       key={item.id}
                       className={`pro-carousel-dot ${idx === currentIndex ? 'active' : ''}`}
                       type="button"
-                      aria-label={`Ir al profesional ${idx + 1}`}
+                      aria-label={`Ir al TENS ${idx + 1}`}
                       onClick={() => scrollToIndex(idx)}
                     />
                   ))}
                 </div>
               </div>
             ) : (
-              /* Estado Vacío cuando la búsqueda no arroja resultados */
+              /* Estado Vacío */
               <div className="pro-empty-state">
                 <div className="pro-empty-icon" aria-hidden="true">
                   <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -579,9 +688,9 @@ export default function ServicesAndProfessionals() {
                     <line x1="8" y1="11" x2="14" y2="11" />
                   </svg>
                 </div>
-                <h4 className="pro-empty-title">No encontramos profesionales para "{searchTerm}"</h4>
+                <h4 className="pro-empty-title">No encontramos profesionales TENS para "{searchTerm}"</h4>
                 <p className="pro-empty-text">
-                  Intenta buscando con otra palabra clave o selecciona "Todos los servicios" para explorar el equipo completo.
+                  Intenta buscando por sector (ej: Rahue, Oriente, Centro) o restablece los filtros para ver todos los cuidadores disponibles.
                 </p>
                 <button
                   type="button"
@@ -608,15 +717,27 @@ export default function ServicesAndProfessionals() {
               </svg>
             </span>
             <p>
-              Todos los profesionales de la red Visalud se encuentran registrados y habilitados ante la
-              Superintendencia de Salud de Chile. Puedes coordinar tu consulta directamente o contactar a nuestra mesa central.
+              Todos los TENS de la red Visalud se encuentran registrados ante la
+              Superintendencia de Salud de Chile. El acuerdo de horas y pagos es particular y directo con cada técnico.
             </p>
           </div>
-          <a href="#contacto" className="footer-note-link">
-            ¿Dudas para elegir? Asesórate con nosotros →
+          <a
+            href={buildCoordinationWhatsAppLink()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footer-note-link footer-note-whatsapp-link"
+          >
+            <span className="footer-note-wa-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+              </svg>
+            </span>
+            <span>¿Necesitas coordinación delegada de turnos? Escríbenos a WhatsApp aquí →</span>
           </a>
+
         </div>
       </div>
     </section>
   )
 }
+

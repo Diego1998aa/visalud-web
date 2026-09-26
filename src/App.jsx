@@ -8,6 +8,7 @@ import Footer from './components/Footer.jsx'
 import Admin from './components/Admin.jsx'
 import AdminLogin from './components/AdminLogin.jsx'
 import IntegrityWidget from './components/IntegrityWidget.jsx'
+import FloatingWhatsApp from './components/FloatingWhatsApp.jsx'
 import { authService } from './services/authService.js'
 import './App.css'
 
@@ -189,6 +190,7 @@ export default function App() {
       </main>
       <Footer onNavigateAdmin={navigateToAdmin} />
       <IntegrityWidget />
+      <FloatingWhatsApp />
     </div>
   )
 }
