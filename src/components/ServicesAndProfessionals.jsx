@@ -16,7 +16,7 @@ const servicesData = [
       'Técnicos certificados ante la Superintendencia de Salud (SIS)',
       'Modalidades flexibles: Medio turno (6 hrs) y Turno completo (12 hrs)',
       'Puente directo: Coordinación y pago 100% directo con el profesional',
-      'Atención particular sin trámites de Isapre ni reembolsos burocráticos',
+      'Atención 100% particular y directa (sin Fonasa, Isapre ni bonos)',
     ],
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -279,7 +279,7 @@ export default function ServicesAndProfessionals() {
               <div className="bridge-step-num">3</div>
               <div className="bridge-step-body">
                 <h4>Servicio particular y pago directo</h4>
-                <p>Sin Isapres ni esperas de reembolso. Los acuerdos y métodos de pago (transferencia, efectivo o débito/crédito) se gestionan y pagan directamente al profesional.</p>
+                <p>Sin Fonasa, Isapre ni bonos. El servicio es de trato directo y particular: los turnos y el pago (transferencia o efectivo) se acuerdan y pagan directamente al profesional.</p>
               </div>
             </div>
           </div>

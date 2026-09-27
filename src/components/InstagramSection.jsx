@@ -68,7 +68,7 @@ const POSTS = [
     image: '/fotos visalud/visalud3.jpg',
     title: 'Sin intermediarios: acuerdo particular directo con la TENS',
     caption:
-      'En Visalud somos un puente transparente: tú eliges a la profesional, acuerdas los horarios de 6h o 12h y el medio de pago que prefieras (efectivo, transferencia o tarjeta). Sin cobros sorpresa ni trámites de Isapre.',
+      'En Visalud somos un puente transparente: tú eliges a la profesional, acuerdas los horarios de 6h o 12h y el pago directo (efectivo o transferencia). Trato 100% directo y particular con el profesional.',
     hashtags: ['#TratoDirecto', '#TENSindependientes', '#Osorno', '#TransparenciaMedica'],
     likes: 265,
     comments: 19,

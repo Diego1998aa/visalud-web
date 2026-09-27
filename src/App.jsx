@@ -1,16 +1,17 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import Header from './components/Header.jsx'
 import IntroSection from './components/IntroSection.jsx'
 import ServicesAndProfessionals from './components/ServicesAndProfessionals.jsx'
 import InstagramSection from './components/InstagramSection.jsx'
 import Contact from './components/Contact.jsx'
 import Footer from './components/Footer.jsx'
-import Admin from './components/Admin.jsx'
-import AdminLogin from './components/AdminLogin.jsx'
 import IntegrityWidget from './components/IntegrityWidget.jsx'
 import FloatingWhatsApp from './components/FloatingWhatsApp.jsx'
 import { authService } from './services/authService.js'
 import './App.css'
+
+const Admin = lazy(() => import('./components/Admin.jsx'))
+const AdminLogin = lazy(() => import('./components/AdminLogin.jsx'))
 
 export default function App() {
   const [theme, setTheme] = useState(() => {
@@ -148,27 +149,39 @@ export default function App() {
 
     if (!sessionUser) {
       return (
-        <AdminLogin
-          onLoginSuccess={(user, role) => {
-            setSessionUser(user)
-            setSessionRole(role)
-          }}
-          onBackToSite={navigateToSite}
-          theme={theme}
-          onToggleTheme={toggleTheme}
-        />
+        <Suspense fallback={
+          <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-page, #f6fbfa)' }}>
+            <div className="admin-spinner" />
+          </div>
+        }>
+          <AdminLogin
+            onLoginSuccess={(user, role) => {
+              setSessionUser(user)
+              setSessionRole(role)
+            }}
+            onBackToSite={navigateToSite}
+            theme={theme}
+            onToggleTheme={toggleTheme}
+          />
+        </Suspense>
       )
     }
 
     return (
-      <Admin
-        currentUser={sessionUser}
-        userRole={sessionRole}
-        onSignOut={handleSignOut}
-        onBackToSite={navigateToSite}
-        theme={theme}
-        onToggleTheme={toggleTheme}
-      />
+      <Suspense fallback={
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-page, #f6fbfa)' }}>
+          <div className="admin-spinner" />
+        </div>
+      }>
+        <Admin
+          currentUser={sessionUser}
+          userRole={sessionRole}
+          onSignOut={handleSignOut}
+          onBackToSite={navigateToSite}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+        />
+      </Suspense>
     )
   }
 

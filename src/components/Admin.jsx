@@ -75,7 +75,7 @@ const INITIAL_FORM = {
   whatsapp: '569',
   attention: 'Lunes a Viernes (08:30 - 18:30)',
   modality: 'A Domicilio en Osorno',
-  convenios: 'Fonasa, Isapre y Particular',
+  convenios: 'Atención Particular • Trato Directo',
   bio: '',
   status: 'active',
   order_index: 1,
@@ -1174,14 +1174,14 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`}
                     />
                   </div>
 
-                  {/* Convenios */}
+                  {/* Modalidad de Pago / Trato Directo */}
                   <div className="form-field full-width">
-                    <label htmlFor="form-convenios">Convenios / Previsión</label>
+                    <label htmlFor="form-convenios">Modalidad de Pago / Trato Directo</label>
                     <input
                       id="form-convenios"
                       name="convenios"
                       type="text"
-                      placeholder="Fonasa, Isapre y Particular con Boleta"
+                      placeholder="Atención Particular • Trato Directo con el Profesional"
                       value={formData.convenios}
                       onChange={handleFormChange}
                     />
@@ -1318,7 +1318,7 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`}
                       </div>
 
                       <div className="pro-card-convenios-strip">
-                        <span className="convenios-badge">{formData.convenios || 'Particular / Fonasa / Isapre'}</span>
+                        <span className="convenios-badge">{formData.convenios || 'Atención Particular • Trato Directo'}</span>
                       </div>
                     </div>
                   </article>
