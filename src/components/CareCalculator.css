@@ -1,0 +1,960 @@
+/* ============================================================
+   COTIZADOR INTERACTIVO CON INTEGRITY · VISALUD OSORNO
+   Alta Legibilidad y Soporte Completo Modo Claro y Modo Noche
+   ============================================================ */
+
+.care-calc-section {
+  --calc-text-main: #102e2a;
+  --calc-text-muted: #4e6b66;
+  --calc-border: #d4e5e2;
+  --calc-border-hover: #008d7e;
+  --calc-bg-section: #f0f7f6;
+  --calc-bg-card: #ffffff;
+  --calc-bg-inner: #f7faf9;
+  --calc-primary: #008d7e;
+  --calc-primary-light: rgba(0, 141, 126, 0.1);
+  --calc-primary-border: rgba(0, 141, 126, 0.25);
+  --calc-bubble-bg: rgba(0, 141, 126, 0.08);
+  --calc-bubble-border: rgba(0, 141, 126, 0.22);
+  --calc-shadow: 0 16px 40px rgba(6, 84, 74, 0.07);
+  --calc-input-bg: #ffffff;
+  --calc-input-text: #102e2a;
+  --calc-input-placeholder: #64748b;
+  --calc-card-highlight: rgba(0, 141, 126, 0.06);
+
+  padding: 5rem 1.5rem;
+  background: var(--calc-bg-section);
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ============================================================
+   TEMA OSCURO (MODO NOCHE) - ALTO CONTRASTE Y MÁXIMA NITIDEZ
+   ============================================================ */
+[data-theme="dark"] .care-calc-section,
+.theme-dark .care-calc-section,
+[data-theme="dark"]#cotizador,
+.theme-dark #cotizador {
+  --calc-text-main: #ffffff;             /* Blanco puro para títulos y destacados */
+  --calc-text-muted: #cbd5e1;            /* Gris plateado claro (legibilidad 100% nítida) */
+  --calc-border: rgba(255, 255, 255, 0.14);
+  --calc-border-hover: #2dd4bf;
+  --calc-bg-section: #081312;            /* Fondo base profundo y descansado */
+  --calc-bg-card: #122220;               /* Tarjeta principal elevada */
+  --calc-bg-inner: #182d2a;              /* Tarjetas internas y opciones claramente contrastadas */
+  --calc-primary: #2dd4bf;               /* Menta / Turquesa luminoso visible en oscuridad */
+  --calc-primary-light: rgba(45, 212, 191, 0.18);
+  --calc-primary-border: rgba(45, 212, 191, 0.4);
+  --calc-bubble-bg: rgba(20, 184, 166, 0.14);
+  --calc-bubble-border: rgba(45, 212, 191, 0.38);
+  --calc-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+  --calc-input-bg: #0b1716;
+  --calc-input-text: #ffffff;
+  --calc-input-placeholder: #94a3b8;
+  --calc-card-highlight: rgba(45, 212, 191, 0.16);
+}
+
+.care-calc-container {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+/* ============================================================
+   CABECERA PRINCIPAL
+   ============================================================ */
+.care-calc-header {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 3rem;
+}
+
+.integrity-brand-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 1.15rem 0.45rem 0.6rem;
+  background: var(--calc-primary-light);
+  border: 1px solid var(--calc-primary-border);
+  border-radius: 50px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--calc-primary);
+  margin-bottom: 1.25rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.01em;
+}
+
+.integrity-mini-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: contain;
+  background: #ffffff;
+  padding: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.care-calc-title {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 800;
+  color: var(--calc-text-main);
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  margin: 0 0 1rem;
+}
+
+.care-calc-subtitle {
+  font-size: 1.08rem;
+  color: var(--calc-text-muted);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.care-calc-subtitle strong {
+  color: var(--calc-text-main);
+}
+
+/* ============================================================
+   STEPPER DE PASOS
+   ============================================================ */
+.care-calc-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2.25rem;
+  padding: 0 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.step-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem 0.85rem;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.step-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--calc-bg-card);
+  border: 2px solid var(--calc-border);
+  color: var(--calc-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.92rem;
+  font-weight: 800;
+  transition: all 0.25s ease;
+}
+
+.step-label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--calc-text-muted);
+  transition: color 0.2s ease;
+}
+
+.step-tab.active .step-circle {
+  background: var(--calc-primary);
+  border-color: var(--calc-primary);
+  color: #032824;
+  font-weight: 900;
+  box-shadow: 0 0 0 4px var(--calc-primary-light);
+}
+
+[data-theme="dark"] .step-tab.active .step-circle,
+.theme-dark .step-tab.active .step-circle {
+  color: #032824; /* Excelente contraste negro/verde oscuro sobre menta luminoso */
+}
+
+.step-tab.active .step-label {
+  color: var(--calc-primary);
+  font-weight: 800;
+}
+
+.step-tab.completed .step-circle {
+  background: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+.step-tab.completed .step-label {
+  color: var(--calc-text-main);
+}
+
+.step-connector {
+  width: 36px;
+  height: 2px;
+  background: var(--calc-border);
+  transition: background 0.25s ease;
+}
+
+.step-connector.active {
+  background: var(--calc-primary);
+}
+
+@media (max-width: 680px) {
+  .step-connector {
+    display: none;
+  }
+  .step-label {
+    display: none;
+  }
+  .step-tab {
+    padding: 0.35rem;
+  }
+}
+
+/* ============================================================
+   TARJETA PRINCIPAL DEL COTIZADOR
+   ============================================================ */
+.care-calc-card {
+  background: var(--calc-bg-card);
+  border: 1px solid var(--calc-border);
+  border-radius: 28px;
+  padding: clamp(1.5rem, 4vw, 2.75rem);
+  box-shadow: var(--calc-shadow);
+  transition: all 0.3s ease;
+}
+
+/* ============================================================
+   GLOBO DE CONSEJO DE INTEGRITY (AVATAR + TEXTO)
+   ============================================================ */
+.integrity-dialog-bubble {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.15rem;
+  background: var(--calc-bubble-bg);
+  border: 1px solid var(--calc-bubble-border);
+  border-radius: 20px;
+  padding: 1.25rem 1.45rem;
+  margin-bottom: 2.25rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+}
+
+.bubble-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.bubble-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: contain;
+  background: #ffffff;
+  padding: 4px;
+  border: 2px solid var(--calc-primary);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+.bubble-pulse-dot {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 2px solid var(--calc-bg-card);
+}
+
+.bubble-author {
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--calc-primary);
+  margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.bubble-text p {
+  font-size: 1rem;
+  color: var(--calc-text-main);
+  margin: 0;
+  line-height: 1.55;
+  font-weight: 500;
+}
+
+/* ============================================================
+   ENCABEZADOS DE CADA PASO
+   ============================================================ */
+.step-heading {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: var(--calc-text-main);
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+}
+
+.step-heading span {
+  color: var(--calc-primary);
+}
+
+.step-subheading {
+  font-size: 1rem;
+  color: var(--calc-text-muted);
+  margin: 0 0 1.85rem;
+  line-height: 1.55;
+}
+
+/* Animación */
+.animate-fade-in {
+  animation: calcFadeIn 0.28s ease-out forwards;
+}
+
+@keyframes calcFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================
+   PASO 1: GRID DE MODALIDADES DE TURNO
+   ============================================================ */
+.shifts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(225px, 1fr));
+  gap: 1.15rem;
+  margin-bottom: 2.25rem;
+}
+
+.shift-card {
+  background: var(--calc-bg-inner);
+  border: 2px solid var(--calc-border);
+  border-radius: 20px;
+  padding: 1.45rem;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.shift-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--calc-border-hover);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+}
+
+.shift-card.selected {
+  background: var(--calc-card-highlight);
+  border-color: var(--calc-primary);
+  box-shadow: 0 0 0 3px var(--calc-primary-light);
+}
+
+.shift-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.95rem;
+}
+
+.shift-icon {
+  font-size: 1.85rem;
+}
+
+.shift-badge {
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.28rem 0.65rem;
+  border-radius: 20px;
+  background: var(--calc-primary-light);
+  color: var(--calc-primary);
+  border: 1px solid var(--calc-primary-border);
+}
+
+.shift-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--calc-text-main);
+  margin: 0 0 0.5rem;
+  line-height: 1.3;
+}
+
+.shift-desc {
+  font-size: 0.92rem;
+  color: var(--calc-text-muted);
+  margin: 0 0 1.35rem;
+  line-height: 1.5;
+  flex-grow: 1;
+}
+
+.shift-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.95rem;
+  border-top: 1px solid var(--calc-border);
+}
+
+.shift-hours-tag {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: var(--calc-primary);
+}
+
+.shift-check-radio {
+  font-size: 1.25rem;
+  color: var(--calc-primary);
+  line-height: 1;
+}
+
+/* ============================================================
+   PASO 2: FRECUENCIA Y SECTOR EN OSORNO
+   ============================================================ */
+.calc-two-col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2.25rem;
+}
+
+@media (max-width: 800px) {
+  .calc-two-col-grid {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+}
+
+.group-label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--calc-text-main);
+  margin-bottom: 0.95rem;
+}
+
+.freq-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.freq-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.35rem;
+  background: var(--calc-bg-inner);
+  border: 2px solid var(--calc-border);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.freq-card:hover {
+  border-color: var(--calc-border-hover);
+}
+
+.freq-card.selected {
+  background: var(--calc-card-highlight);
+  border-color: var(--calc-primary);
+}
+
+.freq-radio {
+  font-size: 1.25rem;
+  color: var(--calc-primary);
+  line-height: 1;
+}
+
+.freq-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.freq-name {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: var(--calc-text-main);
+}
+
+.freq-desc {
+  font-size: 0.85rem;
+  color: var(--calc-text-muted);
+}
+
+/* Sectores en Osorno */
+.sectors-chips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 0.7rem;
+}
+
+.sector-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0.95rem;
+  background: var(--calc-bg-inner);
+  border: 2px solid var(--calc-border);
+  border-radius: 14px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--calc-text-main);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-align: left;
+}
+
+.sector-chip-btn:hover {
+  border-color: var(--calc-border-hover);
+  transform: translateY(-1px);
+}
+
+.sector-chip-btn.active {
+  background: var(--calc-primary);
+  border-color: var(--calc-primary);
+  color: #032824; /* Alto contraste nítido en modo noche */
+  font-weight: 800;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] .sector-chip-btn.active {
+  color: #ffffff;
+}
+
+/* ============================================================
+   PASO 3: NECESIDADES CLÍNICAS
+   ============================================================ */
+.needs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.95rem;
+  margin-bottom: 2.25rem;
+}
+
+.need-card {
+  display: flex;
+  align-items: center;
+  gap: 0.95rem;
+  padding: 1.05rem 1.35rem;
+  background: var(--calc-bg-inner);
+  border: 2px solid var(--calc-border);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.need-card:hover {
+  border-color: var(--calc-border-hover);
+}
+
+.need-card.checked {
+  background: var(--calc-card-highlight);
+  border-color: var(--calc-primary);
+}
+
+.need-checkbox {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  border: 2px solid var(--calc-border);
+  background: var(--calc-bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.9rem;
+  color: #ffffff;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+}
+
+.need-card.checked .need-checkbox {
+  background: var(--calc-primary);
+  border-color: var(--calc-primary);
+  color: #032824;
+}
+
+[data-theme="light"] .need-card.checked .need-checkbox {
+  color: #ffffff;
+}
+
+.need-icon {
+  font-size: 1.45rem;
+  flex-shrink: 0;
+}
+
+.need-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--calc-text-main);
+  line-height: 1.45;
+}
+
+/* ============================================================
+   PASO 4: RESUMEN INTELIGENTE
+   ============================================================ */
+.summary-banner {
+  background: linear-gradient(135deg, var(--calc-primary-light), transparent);
+  border: 1px solid var(--calc-primary-border);
+  border-radius: 20px;
+  padding: 1.6rem 1.85rem;
+  margin-bottom: 1.85rem;
+}
+
+.summary-badge-tag {
+  display: inline-block;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--calc-primary);
+  margin-bottom: 0.45rem;
+}
+
+.summary-title {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--calc-text-main);
+  margin: 0 0 0.5rem;
+  line-height: 1.25;
+}
+
+.summary-lead {
+  font-size: 1rem;
+  color: var(--calc-text-muted);
+  margin: 0;
+  line-height: 1.55;
+}
+
+.summary-lead strong {
+  color: var(--calc-text-main);
+}
+
+.summary-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.85rem;
+}
+
+.summary-item-card {
+  background: var(--calc-bg-inner);
+  border: 1px solid var(--calc-border);
+  border-radius: 18px;
+  padding: 1.35rem 1.45rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-item-card.highlight {
+  border-color: var(--calc-primary);
+  background: var(--calc-card-highlight);
+}
+
+.summary-item-label {
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--calc-text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.summary-item-value {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--calc-text-main);
+  margin-bottom: 0.3rem;
+  line-height: 1.25;
+}
+
+.summary-item-value.text-teal {
+  color: var(--calc-primary);
+}
+
+.summary-item-sub {
+  font-size: 0.85rem;
+  color: var(--calc-text-muted);
+  font-weight: 500;
+}
+
+/* Lista de Cuidados Contemplados */
+.summary-needs-box {
+  background: var(--calc-bg-inner);
+  border: 1px solid var(--calc-border);
+  border-radius: 18px;
+  padding: 1.35rem 1.5rem;
+  margin-bottom: 2.25rem;
+}
+
+.summary-needs-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--calc-text-main);
+  margin: 0 0 0.95rem;
+}
+
+.summary-chips-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.summary-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.95rem;
+  border-radius: 50px;
+  background: var(--calc-primary-light);
+  border: 1px solid var(--calc-primary-border);
+  color: var(--calc-primary);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+/* ============================================================
+   CALL TO ACTION & REGISTRO
+   ============================================================ */
+.calc-cta-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.85rem;
+}
+
+.cta-highlight-box {
+  text-align: center;
+}
+
+.btn-cta-whatsapp-calc {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  padding: 1.15rem 2.25rem;
+  background: #25d366;
+  color: #ffffff;
+  border: none;
+  border-radius: 18px;
+  font-size: 1.08rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 26px rgba(37, 211, 102, 0.35);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 100%;
+}
+
+.btn-cta-whatsapp-calc:hover {
+  background: #128c7e;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(37, 211, 102, 0.45);
+}
+
+.cta-helper-text {
+  font-size: 0.92rem;
+  color: var(--calc-text-muted);
+  margin: 0.95rem auto 0;
+  max-width: 620px;
+  line-height: 1.55;
+}
+
+/* Formulario Alternativo de Registro en Mini-CRM */
+.lead-register-box {
+  background: var(--calc-bg-inner);
+  border: 1px dashed var(--calc-border);
+  border-radius: 20px;
+  padding: 1.5rem 1.75rem;
+}
+
+.lead-register-header h4 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--calc-text-main);
+  margin: 0 0 0.35rem;
+}
+
+.lead-register-header p {
+  font-size: 0.9rem;
+  color: var(--calc-text-muted);
+  margin: 0 0 1.15rem;
+}
+
+.lead-register-inputs {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.calc-input {
+  flex: 1;
+  min-width: 190px;
+  padding: 0.85rem 1.1rem;
+  background: var(--calc-input-bg);
+  border: 1px solid var(--calc-border);
+  border-radius: 14px;
+  font-size: 0.94rem;
+  color: var(--calc-input-text);
+  transition: border-color 0.2s ease;
+}
+
+.calc-input::placeholder {
+  color: var(--calc-input-placeholder);
+}
+
+.calc-input:focus {
+  outline: none;
+  border-color: var(--calc-primary);
+  box-shadow: 0 0 0 3px var(--calc-primary-light);
+}
+
+.btn-send-calc-lead {
+  padding: 0.85rem 1.5rem;
+  background: var(--calc-primary);
+  color: #032824;
+  font-weight: 800;
+  border: none;
+  border-radius: 14px;
+  font-size: 0.92rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+[data-theme="light"] .btn-send-calc-lead {
+  background: #008d7e;
+  color: #ffffff;
+}
+
+.btn-send-calc-lead:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.lead-sent-success {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem 1.35rem;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 14px;
+  color: #10b981;
+}
+
+.success-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #10b981;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.lead-sent-success strong {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+  color: #34d399;
+}
+
+.lead-sent-success p {
+  font-size: 0.88rem;
+  color: var(--calc-text-muted);
+  margin: 0;
+}
+
+.calc-reset-bar {
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.btn-calc-reset {
+  background: transparent;
+  border: none;
+  color: var(--calc-text-muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0.5rem;
+  transition: color 0.2s ease;
+}
+
+.btn-calc-reset:hover {
+  color: var(--calc-primary);
+}
+
+/* ============================================================
+   BARRA DE ACCIONES (VOLVER / SIGUIENTE)
+   ============================================================ */
+.calc-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--calc-border);
+}
+
+.btn-calc-prev {
+  background: transparent;
+  border: 1px solid var(--calc-border);
+  color: var(--calc-text-muted);
+  padding: 0.85rem 1.5rem;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-calc-prev:hover {
+  border-color: var(--calc-text-main);
+  color: var(--calc-text-main);
+}
+
+.btn-calc-next {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: var(--calc-primary);
+  color: #032824;
+  border: none;
+  padding: 0.92rem 2rem;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-left: auto;
+}
+
+[data-theme="light"] .btn-calc-next {
+  background: #008d7e;
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(0, 141, 126, 0.25);
+}
+
+.btn-calc-next:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.3);
+}

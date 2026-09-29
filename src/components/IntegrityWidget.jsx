@@ -10,6 +10,7 @@ const INITIAL_GREETING = {
   text: `¡Hola! 👋 Soy **Integrity**, asistente virtual inteligente de **Visalud Osorno**.\n\nTe oriento para conectar a tu familia de forma directa con **Técnicos en Enfermería (TENS)** certificados en el **cuidado de adultos mayores a domicilio en Osorno**.\n\nModalidades particulares por horas: **medio turno (6 hrs)** y **turno completo (12 hrs)**.\n\n¿Qué información necesitas hoy?`,
   timestamp: new Date(),
   actions: [
+    { label: '🧮 Cotizador Inteligente (3 Pasos)', url: '#cotizador' },
     { label: '👵 Medio turno (6 hrs)', query: 'que incluye el medio turno de 6 horas' },
     { label: '🌙 Turno completo (12 hrs / Vigilia)', query: 'como funciona el turno completo de 12 horas o vigilia' },
     { label: '💳 ¿Cómo se paga? (Trato directo particular)', query: 'como es el pago y si es particular de trato directo' },
@@ -30,6 +31,7 @@ const QUICK_CATEGORIES = [
 
 const CHIPS_BY_CATEGORY = {
   frecuentes: [
+    { label: '🧮 Cotizador de Turnos', url: '#cotizador' },
     { label: '⏱️ Medio turno (6 hrs)', query: 'que incluye el medio turno de 6 horas' },
     { label: '🌙 Turno completo (12 hrs)', query: 'como funciona el turno completo de 12 horas o vigilia' },
     { label: '💳 Pago directo al TENS (Particular)', query: 'como es el pago y si es particular de trato directo' },
@@ -38,6 +40,7 @@ const CHIPS_BY_CATEGORY = {
     { label: '💬 Hablar con Coordinación', isWhatsApp: true, customText: 'Hola Visalud, quisiera orientación para el cuidado de mi familiar en Osorno' }
   ],
   turnos: [
+    { label: '🧮 Cotizar Turno a Medida', url: '#cotizador' },
     { label: '☀️ Medio turno (6 hrs diurno o tarde)', query: 'que incluye el medio turno de 6 horas' },
     { label: '🌕 Turno completo (12 hrs diurno)', query: 'como funciona el turno completo de 12 horas o vigilia' },
     { label: '🌙 Vigilia nocturna (12 hrs de noche)', query: 'como es el turno de noche de vigilia para adulto mayor' },
@@ -98,6 +101,26 @@ function getVisaludClinicalResponse(query) {
       actions: [
         { label: '📞 Llamar SAMU 131', url: 'tel:131', isDanger: true },
         { label: '💬 Consultar disponibilidad WhatsApp', isWhatsApp: true, customText: 'Hola Visalud, tengo una consulta urgente sobre disponibilidad de TENS en Osorno' }
+      ]
+    }
+  }
+
+  // 1.5. Cotizador Interactivo de Cuidados y Turnos
+  if (
+    q.includes('cotiz') ||
+    q.includes('calcular') ||
+    q.includes('calculadora') ||
+    q.includes('presupuesto') ||
+    q.includes('cuanto sale') ||
+    q.includes('cuanto cuesta') ||
+    q.includes('tarifa') ||
+    q.includes('estimar')
+  ) {
+    return {
+      text: `🧮 **Cotizador Interactivo de Cuidados y Turnos TENS**:\n\n¡He diseñado una herramienta interactiva aquí mismo en la web para estructurar el plan ideal para tu familiar en **3 pasos guiados**!\n\n1. **Elige la modalidad**: Medio turno (6h), Turno completo (12h), Vigilia nocturna o Cuidado continuo 24/7.\n2. **Frecuencia & Sector**: Días a la semana y sector en Osorno (Centro, Rahue, Francke, Kolbe, etc.).\n3. **Cuidados clínicos**: Medicamentos por horario, baño en cama, prevención de escaras, demencia/Alzheimer, etc.\n\nTe calculará de inmediato las horas estimadas y podrás enviar la propuesta directamente a Coordinación por WhatsApp o registrarla en nuestra bandeja.`,
+      actions: [
+        { label: '🧮 Abrir Cotizador Interactivo', url: '#cotizador' },
+        { label: '💬 Consultar disponibilidad por WhatsApp', isWhatsApp: true, customText: 'Hola Visalud, quisiera cotizar cuidados para mi familiar en Osorno' }
       ]
     }
   }
@@ -1110,7 +1133,15 @@ export default function IntegrityWidget() {
                               if (act.isWhatsApp) {
                                 openWhatsApp(act.customText)
                               } else if (act.url) {
-                                window.location.href = act.url
+                                if (act.url.startsWith('#')) {
+                                  setIsOpen(false)
+                                  const target = document.querySelector(act.url)
+                                  if (target) {
+                                    target.scrollIntoView({ behavior: 'smooth' })
+                                  }
+                                } else {
+                                  window.location.href = act.url
+                                }
                               } else if (act.payload) {
                                 handleSendMessage(act.label, act.payload)
                               } else if (act.query) {
@@ -1187,6 +1218,16 @@ export default function IntegrityWidget() {
                   onClick={() => {
                     if (chip.isWhatsApp) {
                       openWhatsApp()
+                    } else if (chip.url) {
+                      if (chip.url.startsWith('#')) {
+                        setIsOpen(false)
+                        const target = document.querySelector(chip.url)
+                        if (target) {
+                          target.scrollIntoView({ behavior: 'smooth' })
+                        }
+                      } else {
+                        window.location.href = chip.url
+                      }
                     } else {
                       handleSendMessage(chip.query)
                     }

@@ -200,3 +200,72 @@ INSERT INTO public.professionals (
     8
 )
 ON CONFLICT (id) DO NOTHING;
+
+-- ============================================================
+-- 5. TABLA DE TESTIMONIOS Y RESEÑAS DE PACIENTES
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.testimonials (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    relation TEXT,
+    location TEXT,
+    service TEXT,
+    rating INTEGER DEFAULT 5,
+    tag TEXT,
+    comment TEXT NOT NULL,
+    status TEXT DEFAULT 'pending', -- 'pending' o 'approved'
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.testimonials ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Acceso de lectura público para testimonios aprobados"
+    ON public.testimonials FOR SELECT
+    USING (true);
+
+CREATE POLICY "Permitir inserción de testimonios a visitantes"
+    ON public.testimonials FOR INSERT
+    WITH CHECK (true);
+
+CREATE POLICY "Permitir moderación de testimonios"
+    ON public.testimonials FOR UPDATE
+    USING (true);
+
+CREATE POLICY "Permitir eliminación de testimonios"
+    ON public.testimonials FOR DELETE
+    USING (true);
+
+-- ============================================================
+-- 6. TABLA DE BANDEJA DE SOLICITUDES Y PACIENTES (MINI-CRM)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.contact_messages (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT,
+    phone TEXT,
+    subject TEXT,
+    sector TEXT,
+    message TEXT NOT NULL,
+    status TEXT DEFAULT 'new', -- 'new', 'contacted', 'scheduled', 'closed'
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Permitir inserción de consultas desde la web"
+    ON public.contact_messages FOR INSERT
+    WITH CHECK (true);
+
+CREATE POLICY "Permitir lectura de consultas para administración"
+    ON public.contact_messages FOR SELECT
+    USING (true);
+
+CREATE POLICY "Permitir actualización de estado de consultas"
+    ON public.contact_messages FOR UPDATE
+    USING (true);
+
+CREATE POLICY "Permitir eliminación de consultas"
+    ON public.contact_messages FOR DELETE
+    USING (true);
+

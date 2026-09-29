@@ -73,9 +73,9 @@ export default function Footer({ onNavigateAdmin }) {
           <div className="footer-links">
             <a href="#inicio">Inicio</a>
             <a href="#servicios">Servicios</a>
-            <a href="#historia">Nuestra Historia</a>
-            <a href="#profesionales">Profesionales</a>
-            <a href="#comunidad">Comunidad</a>
+            <a href="#profesionales">Cuidadores TENS</a>
+            <a href="#testimonios">Testimonios</a>
+            <a href="#faq">Preguntas Frecuentes</a>
             <a href="#contacto">Contacto</a>
           </div>
         </div>

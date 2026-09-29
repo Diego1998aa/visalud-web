@@ -229,9 +229,6 @@ export default function ServicesAndProfessionals() {
 
   return (
     <section className="services-pro-section" id="servicios" aria-labelledby="services-pro-title">
-      {/* Anchor point para el enlace de menú #profesionales */}
-      <div id="profesionales" className="section-anchor" tabIndex={-1} aria-hidden="true" />
-
       <div className="services-pro-container">
         {/* Cabecera Principal de la Sección de Cuidado del Adulto Mayor */}
         <header className="services-pro-header">
@@ -285,8 +282,8 @@ export default function ServicesAndProfessionals() {
           </div>
         </div>
 
-        {/* Barra de Búsqueda Rápida de TENS */}
-        <div className="pro-search-bar-wrapper">
+        {/* Barra de Búsqueda Rápida de TENS y Catálogo de Profesionales */}
+        <div id="profesionales" className="pro-search-bar-wrapper">
           <div className="pro-search-input-box">
             <span className="pro-search-icon" aria-hidden="true">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">

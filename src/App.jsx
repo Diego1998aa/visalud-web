@@ -2,9 +2,12 @@ import { useState, useEffect, lazy, Suspense } from 'react'
 import Header from './components/Header.jsx'
 import IntroSection from './components/IntroSection.jsx'
 import ServicesAndProfessionals from './components/ServicesAndProfessionals.jsx'
+import Testimonials from './components/Testimonials.jsx'
+import FAQSection from './components/FAQSection.jsx'
 import InstagramSection from './components/InstagramSection.jsx'
 import Contact from './components/Contact.jsx'
 import Footer from './components/Footer.jsx'
+import CareCalculator from './components/CareCalculator.jsx'
 import IntegrityWidget from './components/IntegrityWidget.jsx'
 import FloatingWhatsApp from './components/FloatingWhatsApp.jsx'
 import { authService } from './services/authService.js'
@@ -198,6 +201,9 @@ export default function App() {
       <main>
         <IntroSection />
         <ServicesAndProfessionals />
+        <CareCalculator />
+        <Testimonials />
+        <FAQSection />
         <InstagramSection />
         <Contact />
       </main>

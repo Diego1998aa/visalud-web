@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { professionalsService } from '../services/professionalsService.js'
+import { testimonialsService } from '../services/testimonialsService.js'
+import { leadsService } from '../services/leadsService.js'
 import './Admin.css'
 
 const SERVICES_OPTIONS = [
@@ -94,9 +96,9 @@ export default function Admin({
   const [searchQuery, setSearchQuery] = useState('')
   const [serviceFilter, setServiceFilter] = useState('all')
   const [isSupabase, setIsSupabase] = useState(false)
-  const [activeTab, setActiveTab] = useState('list') // 'list' | 'guide'
+  const [activeTab, setActiveTab] = useState('list') // 'list' | 'testimonials' | 'leads' | 'guide'
 
-  // Modal / Form state
+  // Modal / Form state profesionales
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [formData, setFormData] = useState(INITIAL_FORM)
@@ -112,8 +114,29 @@ export default function Admin({
   // Feedback notifications
   const [toastMessage, setToastMessage] = useState(null)
 
-  // Confirm delete modal
+  // Confirm delete modal profesionales
   const [deleteTarget, setDeleteTarget] = useState(null)
+
+  // ================= ESTADO Y GESTIÓN DE TESTIMONIOS =================
+  const [testimonials, setTestimonials] = useState([])
+  const [testimFilter, setTestimFilter] = useState('all') // 'all' | 'pending' | 'approved'
+  const [isAddTestimonialOpen, setIsAddTestimonialOpen] = useState(false)
+  const [manualTestimonialForm, setManualTestimonialForm] = useState({
+    name: '',
+    relation: 'Hija de paciente',
+    location: 'Sector Pilauco, Osorno',
+    service: 'Turno Completo (12 hrs) • Cuidado Continuo',
+    rating: 5,
+    tag: 'Cuidado y Acompañamiento',
+    comment: '',
+  })
+
+  // ================= ESTADO Y GESTIÓN DE SOLICITUDES / MINI-CRM =================
+  const [leads, setLeads] = useState([])
+  const [leadsFilter, setLeadsFilter] = useState('all') // 'all' | 'new' | 'contacted' | 'scheduled' | 'closed'
+  const [leadsSearch, setLeadsSearch] = useState('')
+  const [expandedNotesId, setExpandedNotesId] = useState(null)
+  const [tempNotes, setTempNotes] = useState({})
 
   const showToast = (text, type = 'success') => {
     setToastMessage({ text, type })
@@ -136,13 +159,203 @@ export default function Admin({
     }
   }
 
+  const loadTestimonials = async () => {
+    try {
+      const res = await testimonialsService.getAllTestimonials()
+      setTestimonials(res.data || [])
+    } catch (err) {
+      console.error('Error cargando testimonios:', err)
+    }
+  }
+
+  const loadLeads = async () => {
+    try {
+      const res = await leadsService.getLeads()
+      setLeads(res.data || [])
+    } catch (err) {
+      console.error('Error cargando solicitudes:', err)
+    }
+  }
+
   useEffect(() => {
     loadData()
-    const unsubscribe = professionalsService.onProfessionalsChange(() => {
+    loadTestimonials()
+    loadLeads()
+
+    const unsubPros = professionalsService.onProfessionalsChange(() => {
       loadData()
     })
-    return () => unsubscribe()
+
+    const unsubTestim = testimonialsService.onTestimonialsChange(() => {
+      loadTestimonials()
+    })
+
+    const unsubLeads = leadsService.onLeadsChange((updated) => {
+      if (updated) setLeads(updated)
+      else loadLeads()
+    })
+
+    return () => {
+      unsubPros()
+      unsubTestim()
+      unsubLeads()
+    }
   }, [])
+
+  // Acciones sobre testimonios
+  const handleApproveTestimonial = async (id) => {
+    try {
+      await testimonialsService.approveTestimonial(id)
+      showToast('¡Testimonio aprobado y publicado en la página web!')
+      loadTestimonials()
+    } catch (err) {
+      showToast('Error al aprobar testimonio.', 'error')
+    }
+  }
+
+  const handleRejectTestimonial = async (id) => {
+    try {
+      await testimonialsService.rejectTestimonial(id)
+      showToast('Testimonio pausado / archivado.', 'info')
+      loadTestimonials()
+    } catch (err) {
+      showToast('Error al archivar testimonio.', 'error')
+    }
+  }
+
+  const handleDeleteTestimonial = async (id) => {
+    if (window.confirm('¿Estás seguro de eliminar definitivamente este testimonio?')) {
+      try {
+        await testimonialsService.deleteTestimonial(id)
+        showToast('Testimonio eliminado correctamente.', 'info')
+        loadTestimonials()
+      } catch (err) {
+        showToast('Error al eliminar testimonio.', 'error')
+      }
+    }
+  }
+
+  const handleSaveManualTestimonial = async (e) => {
+    e.preventDefault()
+    if (!manualTestimonialForm.name.trim()) {
+      showToast('Ingresa el nombre del familiar.', 'error')
+      return
+    }
+    if (!manualTestimonialForm.comment.trim()) {
+      showToast('Ingresa el comentario o reseña.', 'error')
+      return
+    }
+
+    try {
+      await testimonialsService.createManualTestimonial(manualTestimonialForm)
+      showToast('¡Testimonio manual registrado y publicado con éxito!')
+      setIsAddTestimonialOpen(false)
+      setManualTestimonialForm({
+        name: '',
+        relation: 'Hija de paciente',
+        location: 'Sector Pilauco, Osorno',
+        service: 'Turno Completo (12 hrs) • Cuidado Continuo',
+        rating: 5,
+        tag: 'Cuidado y Acompañamiento',
+        comment: '',
+      })
+      loadTestimonials()
+    } catch (err) {
+      showToast('Error al crear testimonio.', 'error')
+    }
+  }
+
+  const pendingReviewsCount = useMemo(
+    () => testimonials.filter((t) => t.status === 'pending').length,
+    [testimonials]
+  )
+
+  const approvedReviewsCount = useMemo(
+    () => testimonials.filter((t) => t.status === 'approved').length,
+    [testimonials]
+  )
+
+  const filteredTestimonials = useMemo(() => {
+    return testimonials.filter((t) => {
+      if (testimFilter === 'pending') return t.status === 'pending'
+      if (testimFilter === 'approved') return t.status === 'approved'
+      return true
+    })
+  }, [testimonials, testimFilter])
+
+  // Acciones y estados derivados de Solicitudes (Mini-CRM)
+  const handleUpdateLeadStatus = async (id, newStatus) => {
+    try {
+      await leadsService.updateLead(id, { status: newStatus })
+      setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status: newStatus } : l)))
+      const label =
+        newStatus === 'new'
+          ? 'Nueva Consulta'
+          : newStatus === 'contacted'
+          ? 'En Contacto'
+          : newStatus === 'scheduled'
+          ? 'Turno Agendado'
+          : 'Cerrada'
+      showToast(`Estado actualizado: ${label}`)
+    } catch (err) {
+      showToast('Error actualizando estado.', 'error')
+    }
+  }
+
+  const handleSaveLeadNote = async (id) => {
+    const noteText = tempNotes[id] ?? ''
+    try {
+      await leadsService.updateLead(id, { notes: noteText })
+      setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, notes: noteText } : l)))
+      setExpandedNotesId(null)
+      showToast('Nota interna guardada con éxito.')
+    } catch (err) {
+      showToast('Error guardando nota.', 'error')
+    }
+  }
+
+  const handleDeleteLead = async (id) => {
+    if (window.confirm('¿Seguro que deseas eliminar esta solicitud de paciente?')) {
+      try {
+        await leadsService.deleteLead(id)
+        setLeads((prev) => prev.filter((l) => l.id !== id))
+        showToast('Solicitud eliminada.')
+      } catch (err) {
+        showToast('Error eliminando solicitud.', 'error')
+      }
+    }
+  }
+
+  const handleLeadWhatsAppDirect = async (lead) => {
+    if (lead.status === 'new') {
+      await handleUpdateLeadStatus(lead.id, 'contacted')
+    }
+    const cleanPhone = (lead.phone || '').replace(/[^0-9]/g, '')
+    const targetPhone = cleanPhone.startsWith('56') ? cleanPhone : `56${cleanPhone}`
+    const text = `Hola ${lead.name}, te escribo desde Visalud Osorno respecto a la consulta que realizaste en nuestra web para *${lead.subject || 'Cuidado de Adulto Mayor'}* en ${lead.sector || 'Osorno'}. ¿Con qué disponibilidad y requerimientos podemos coordinar?`
+    window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer')
+  }
+
+  const newLeadsCount = useMemo(() => leads.filter((l) => l.status === 'new').length, [leads])
+  const contactedLeadsCount = useMemo(() => leads.filter((l) => l.status === 'contacted').length, [leads])
+  const scheduledLeadsCount = useMemo(() => leads.filter((l) => l.status === 'scheduled').length, [leads])
+  const closedLeadsCount = useMemo(() => leads.filter((l) => l.status === 'closed').length, [leads])
+
+  const filteredLeads = useMemo(() => {
+    return leads.filter((l) => {
+      if (leadsFilter !== 'all' && l.status !== leadsFilter) return false
+      const q = leadsSearch.toLowerCase().trim()
+      if (!q) return true
+      return (
+        l.name?.toLowerCase().includes(q) ||
+        l.phone?.toLowerCase().includes(q) ||
+        l.sector?.toLowerCase().includes(q) ||
+        l.subject?.toLowerCase().includes(q) ||
+        l.message?.toLowerCase().includes(q) ||
+        l.notes?.toLowerCase().includes(q)
+      )
+    })
+  }, [leads, leadsFilter, leadsSearch])
 
   // Filtrado
   const filteredList = useMemo(() => {
@@ -432,6 +645,39 @@ export default function Admin({
                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
               <span>Profesionales Activos ({professionals.length})</span>
+            </button>
+
+            <button
+              type="button"
+              className={`admin-tab-btn ${activeTab === 'testimonials' ? 'active' : ''}`}
+              onClick={() => setActiveTab('testimonials')}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              <span>Testimonios y Reseñas ({testimonials.length})</span>
+              {pendingReviewsCount > 0 && (
+                <span className="tab-pending-badge" title={`${pendingReviewsCount} nuevos testimonios por revisar`}>
+                  {pendingReviewsCount} nuevos
+                </span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              className={`admin-tab-btn ${activeTab === 'leads' ? 'active' : ''}`}
+              onClick={() => setActiveTab('leads')}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+              <span>Bandeja de Pacientes ({leads.length})</span>
+              {newLeadsCount > 0 && (
+                <span className="tab-pending-badge tab-badge-urgent" title={`${newLeadsCount} solicitudes nuevas por responder`}>
+                  {newLeadsCount} nuevas
+                </span>
+              )}
             </button>
 
             <button
@@ -816,16 +1062,53 @@ ALTER TABLE public.professionals ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Lectura pública" ON public.professionals FOR SELECT USING (true);
 CREATE POLICY "Inserción" ON public.professionals FOR INSERT WITH CHECK (true);
 CREATE POLICY "Actualización" ON public.professionals FOR UPDATE USING (true);
-CREATE POLICY "Eliminación" ON public.professionals FOR DELETE USING (true);`
+-- TABLA DE TESTIMONIOS Y RESEÑAS
+CREATE TABLE IF NOT EXISTS public.testimonials (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    relation TEXT,
+    location TEXT,
+    service TEXT,
+    rating INTEGER DEFAULT 5,
+    tag TEXT,
+    comment TEXT NOT NULL,
+    status TEXT DEFAULT 'pending',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE public.testimonials ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Lectura testimonios" ON public.testimonials FOR SELECT USING (true);
+CREATE POLICY "Inserción testimonios" ON public.testimonials FOR INSERT WITH CHECK (true);
+CREATE POLICY "Actualización testimonios" ON public.testimonials FOR UPDATE USING (true);
+CREATE POLICY "Eliminación testimonios" ON public.testimonials FOR DELETE USING (true);
+
+-- BANDEJA DE SOLICITUDES Y PACIENTES (MINI-CRM)
+CREATE TABLE IF NOT EXISTS public.contact_messages (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT,
+    phone TEXT,
+    subject TEXT,
+    sector TEXT,
+    message TEXT NOT NULL,
+    status TEXT DEFAULT 'new',
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Lectura consultas" ON public.contact_messages FOR SELECT USING (true);
+CREATE POLICY "Inserción consultas" ON public.contact_messages FOR INSERT WITH CHECK (true);
+CREATE POLICY "Actualización consultas" ON public.contact_messages FOR UPDATE USING (true);
+CREATE POLICY "Eliminación consultas" ON public.contact_messages FOR DELETE USING (true);`
                             navigator.clipboard.writeText(sqlText)
-                            showToast('¡Script SQL copiado al portapapeles!')
+                            showToast('¡Script SQL completo copiado al portapapeles!')
                           }}
                         >
-                          📋 Copiar Script SQL
+                          📋 Copiar Script SQL Completo
                         </button>
                       </div>
                       <pre className="sql-preview">
-{`CREATE TABLE IF NOT EXISTS public.professionals (
+{`-- 1. PROFESIONALES
+CREATE TABLE IF NOT EXISTS public.professionals (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     "serviceId" TEXT NOT NULL,
@@ -846,16 +1129,37 @@ CREATE POLICY "Eliminación" ON public.professionals FOR DELETE USING (true);`
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
-ALTER TABLE public.professionals ENABLE ROW LEVEL SECURITY;
+-- 2. TESTIMONIOS Y RESEÑAS
+CREATE TABLE IF NOT EXISTS public.testimonials (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    relation TEXT,
+    location TEXT,
+    service TEXT,
+    rating INTEGER DEFAULT 5,
+    tag TEXT,
+    comment TEXT NOT NULL,
+    status TEXT DEFAULT 'pending',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
 
-CREATE POLICY "Lectura pública" ON public.professionals FOR SELECT USING (true);
-CREATE POLICY "Inserción" ON public.professionals FOR INSERT WITH CHECK (true);
-CREATE POLICY "Actualización" ON public.professionals FOR UPDATE USING (true);
-CREATE POLICY "Eliminación" ON public.professionals FOR DELETE USING (true);`}
+-- 3. BANDEJA DE SOLICITUDES (MINI-CRM)
+CREATE TABLE IF NOT EXISTS public.contact_messages (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT,
+    phone TEXT,
+    subject TEXT,
+    sector TEXT,
+    message TEXT NOT NULL,
+    status TEXT DEFAULT 'new',
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);`}
                       </pre>
                     </div>
                     <p className="note-text">
-                      * Nota: También puedes encontrar el archivo completo con los 8 profesionales precargados en <code>supabase-schema.sql</code> en la raíz del proyecto.
+                      * Nota: Encuentra el script SQL completo con todas las políticas y profesionales precargados en <code>supabase-schema.sql</code> en la raíz del proyecto.
                     </p>
                   </div>
                 </div>
@@ -880,6 +1184,491 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`}
                     </p>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: GESTIÓN DE TESTIMONIOS */}
+          {activeTab === 'testimonials' && (
+            <div className="admin-content-section">
+              <div className="testim-admin-header">
+                <div className="testim-header-info">
+                  <span className="testim-badge-pill">Moderación y Control de Calidad</span>
+                  <h2 className="testim-admin-title">Testimonios de Familias y Pacientes</h2>
+                  <p className="testim-admin-desc">
+                    Revisa las opiniones que dejan los visitantes en la web antes de publicarlas, o añade manualmente testimonios que te envíen por WhatsApp.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  className="btn-create-pro"
+                  onClick={() => setIsAddTestimonialOpen(true)}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  <span>+ Agregar Testimonio Manual</span>
+                </button>
+              </div>
+
+              {/* Métricas rápidas de testimonios */}
+              <div className="testim-stats-row">
+                <div className="testim-stat-box">
+                  <span className="testim-stat-num">{testimonials.length}</span>
+                  <span className="testim-stat-label">Total en el Sistema</span>
+                </div>
+                <div className="testim-stat-box highlight-pending">
+                  <span className="testim-stat-num">{pendingReviewsCount}</span>
+                  <span className="testim-stat-label">Pendientes de Moderación</span>
+                </div>
+                <div className="testim-stat-box highlight-approved">
+                  <span className="testim-stat-num">{approvedReviewsCount}</span>
+                  <span className="testim-stat-label">Publicados en el Carrusel</span>
+                </div>
+              </div>
+
+              {/* Filtro de testimonios */}
+              <div className="testim-filter-bar">
+                <div className="testim-filter-pills">
+                  <button
+                    type="button"
+                    className={`testim-pill ${testimFilter === 'all' ? 'active' : ''}`}
+                    onClick={() => setTestimFilter('all')}
+                  >
+                    Todos ({testimonials.length})
+                  </button>
+                  <button
+                    type="button"
+                    className={`testim-pill ${testimFilter === 'pending' ? 'active' : ''}`}
+                    onClick={() => setTestimFilter('pending')}
+                  >
+                    Pendientes por Moderar ({pendingReviewsCount})
+                  </button>
+                  <button
+                    type="button"
+                    className={`testim-pill ${testimFilter === 'approved' ? 'active' : ''}`}
+                    onClick={() => setTestimFilter('approved')}
+                  >
+                    Publicados en la Web ({approvedReviewsCount})
+                  </button>
+                </div>
+              </div>
+
+              {/* Lista de testimonios */}
+              <div className="testim-admin-list">
+                {filteredTestimonials.length === 0 ? (
+                  <div className="testim-empty-card">
+                    <p>No hay testimonios en esta categoría.</p>
+                  </div>
+                ) : (
+                  filteredTestimonials.map((t) => (
+                    <div key={t.id} className={`testim-admin-card status-${t.status}`}>
+                      <div className="testim-card-header">
+                        <div className="testim-card-status">
+                          {t.status === 'pending' && (
+                            <span className="badge-status-pending">
+                              <span className="pulse-dot-amber" />
+                              <span>Pendiente de Aprobación</span>
+                            </span>
+                          )}
+                          {t.status === 'approved' && (
+                            <span className="badge-status-approved">
+                              <span>✓ Publicado en la Web</span>
+                            </span>
+                          )}
+                          {t.status === 'archived' && (
+                            <span className="badge-status-archived">
+                              <span>Oculto / Pausado</span>
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="testim-stars-display">
+                          {'★'.repeat(t.rating || 5)} <span>({t.rating || 5}/5)</span>
+                        </div>
+                      </div>
+
+                      <blockquote className="testim-admin-quote">
+                        “{t.comment}”
+                      </blockquote>
+
+                      <div className="testim-admin-meta">
+                        <div>
+                          <strong className="testim-author-name">{t.name}</strong>
+                          <span className="testim-author-rel">{t.relation}</span>
+                        </div>
+                        <div className="testim-author-details">
+                          <span>📍 {t.location}</span>
+                          <span>🩺 {t.service}</span>
+                          {t.created_at && (
+                            <span className="testim-date">
+                              📅 {new Date(t.created_at).toLocaleDateString('es-CL')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="testim-card-actions">
+                        {t.status === 'pending' && (
+                          <button
+                            type="button"
+                            className="btn-testim-approve"
+                            onClick={() => handleApproveTestimonial(t.id)}
+                            title="Aprobar para que aparezca en el carrusel público"
+                          >
+                            <span>✓ Aprobar y Publicar</span>
+                          </button>
+                        )}
+
+                        {t.status === 'approved' && (
+                          <button
+                            type="button"
+                            className="btn-testim-pause"
+                            onClick={() => handleRejectTestimonial(t.id)}
+                            title="Ocultar temporalmente del carrusel"
+                          >
+                            <span>Pausar / Ocultar</span>
+                          </button>
+                        )}
+
+                        {t.status === 'archived' && (
+                          <button
+                            type="button"
+                            className="btn-testim-approve"
+                            onClick={() => handleApproveTestimonial(t.id)}
+                            title="Volver a publicar en el carrusel"
+                          >
+                            <span>Volver a Publicar</span>
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          className="btn-testim-delete"
+                          onClick={() => handleDeleteTestimonial(t.id)}
+                          title="Eliminar permanentemente este comentario"
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                          </svg>
+                          <span>Eliminar</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: BANDEJA DE SOLICITUDES Y PACIENTES (MINI-CRM) */}
+          {activeTab === 'leads' && (
+            <div className="admin-content-section">
+              <div className="leads-admin-header">
+                <div className="leads-header-info">
+                  <div className="leads-badge-box">
+                    <span className="leads-badge-pill">Mini-CRM de Pacientes</span>
+                    <span className="leads-status-chip">
+                      {isSupabase ? '🟢 Sincronizado en Supabase' : '💾 Guardado en Almacenamiento Local'}
+                    </span>
+                  </div>
+                  <h2 className="leads-admin-title">Bandeja de Consultas y Solicitudes</h2>
+                  <p className="leads-admin-desc">
+                    Gestiona todas las solicitudes recibidas desde el formulario web de Visalud Osorno. Responde por WhatsApp en 1 clic y dale seguimiento a cada familiar.
+                  </p>
+                </div>
+
+                <div className="leads-header-actions">
+                  <button
+                    type="button"
+                    className="btn-leads-refresh"
+                    onClick={loadLeads}
+                    title="Actualizar lista de solicitudes"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                    </svg>
+                    <span>Actualizar</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Métricas rápidas del CRM */}
+              <div className="leads-stats-row">
+                <div className="leads-stat-box">
+                  <span className="leads-stat-num">{leads.length}</span>
+                  <span className="leads-stat-label">Total Solicitudes</span>
+                </div>
+                <div className="leads-stat-box highlight-new">
+                  <span className="leads-stat-num">{newLeadsCount}</span>
+                  <span className="leads-stat-label">Por Responder (Nuevas)</span>
+                </div>
+                <div className="leads-stat-box highlight-contacted">
+                  <span className="leads-stat-num">{contactedLeadsCount}</span>
+                  <span className="leads-stat-label">En Seguimiento</span>
+                </div>
+                <div className="leads-stat-box highlight-scheduled">
+                  <span className="leads-stat-num">{scheduledLeadsCount}</span>
+                  <span className="leads-stat-label">Turnos Agendados</span>
+                </div>
+              </div>
+
+              {/* Barra de Filtros y Búsqueda */}
+              <div className="leads-toolbar">
+                <div className="leads-search-box">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                  <input
+                    type="text"
+                    placeholder="Buscar por familiar, teléfono, sector o requerimiento..."
+                    value={leadsSearch}
+                    onChange={(e) => setLeadsSearch(e.target.value)}
+                  />
+                  {leadsSearch && (
+                    <button
+                      type="button"
+                      className="leads-clear-search"
+                      onClick={() => setLeadsSearch('')}
+                      aria-label="Limpiar búsqueda"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                <div className="leads-filter-pills">
+                  <button
+                    type="button"
+                    className={`leads-pill ${leadsFilter === 'all' ? 'active' : ''}`}
+                    onClick={() => setLeadsFilter('all')}
+                  >
+                    Todas ({leads.length})
+                  </button>
+                  <button
+                    type="button"
+                    className={`leads-pill pill-new ${leadsFilter === 'new' ? 'active' : ''}`}
+                    onClick={() => setLeadsFilter('new')}
+                  >
+                    🟡 Nuevas ({newLeadsCount})
+                  </button>
+                  <button
+                    type="button"
+                    className={`leads-pill pill-contacted ${leadsFilter === 'contacted' ? 'active' : ''}`}
+                    onClick={() => setLeadsFilter('contacted')}
+                  >
+                    🔵 Contactadas ({contactedLeadsCount})
+                  </button>
+                  <button
+                    type="button"
+                    className={`leads-pill pill-scheduled ${leadsFilter === 'scheduled' ? 'active' : ''}`}
+                    onClick={() => setLeadsFilter('scheduled')}
+                  >
+                    🟢 Agendadas ({scheduledLeadsCount})
+                  </button>
+                  <button
+                    type="button"
+                    className={`leads-pill pill-closed ${leadsFilter === 'closed' ? 'active' : ''}`}
+                    onClick={() => setLeadsFilter('closed')}
+                  >
+                    ⚪ Cerradas ({closedLeadsCount})
+                  </button>
+                </div>
+              </div>
+
+              {/* Listado de Solicitudes */}
+              <div className="leads-list">
+                {filteredLeads.length === 0 ? (
+                  <div className="leads-empty-card">
+                    <div className="leads-empty-icon">📬</div>
+                    <h3>No hay solicitudes en esta vista</h3>
+                    <p>
+                      {leadsSearch
+                        ? 'No se encontraron resultados para los términos ingresados.'
+                        : 'Las nuevas consultas de pacientes que ingresen por la página web aparecerán automáticamente aquí.'}
+                    </p>
+                  </div>
+                ) : (
+                  filteredLeads.map((lead) => {
+                    const formattedDate = new Date(lead.created_at).toLocaleString('es-CL', {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })
+
+                    return (
+                      <article key={lead.id} className={`lead-card status-${lead.status}`}>
+                        {/* Cabecera de la tarjeta */}
+                        <div className="lead-card-header">
+                          <div className="lead-header-left">
+                            <div className="lead-status-selector-wrap">
+                              <span className={`lead-status-dot dot-${lead.status}`} />
+                              <select
+                                className={`lead-status-select select-${lead.status}`}
+                                value={lead.status}
+                                onChange={(e) => handleUpdateLeadStatus(lead.id, e.target.value)}
+                                title="Cambiar estado de la solicitud"
+                              >
+                                <option value="new">🟡 Nueva (Por responder)</option>
+                                <option value="contacted">🔵 Contactado / En seguimiento</option>
+                                <option value="scheduled">🟢 Turno Agendado</option>
+                                <option value="closed">⚪ Cerrado / Finalizado</option>
+                              </select>
+                            </div>
+                            <span className="lead-date-pill">{formattedDate}</span>
+                          </div>
+
+                          <div className="lead-header-right">
+                            <span className="lead-sector-badge">
+                              📍 {lead.sector || 'Osorno'}
+                            </span>
+                            <span className="lead-service-badge">
+                              {lead.subject || 'Cuidado Adulto Mayor'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Cuerpo de información del paciente */}
+                        <div className="lead-card-body">
+                          <div className="lead-person-row">
+                            <div className="lead-person-main">
+                              <h3 className="lead-person-name">{lead.name}</h3>
+                              <div className="lead-contact-items">
+                                {lead.phone && (
+                                  <a
+                                    href={`tel:${lead.phone}`}
+                                    className="lead-contact-link phone"
+                                    title="Llamar directamente"
+                                  >
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.5 2 2 0 0 1 3.6 1.32h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6.09 6.09l1.78-1.78a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                                    </svg>
+                                    <span>{lead.phone}</span>
+                                  </a>
+                                )}
+                                {lead.email && (
+                                  <a
+                                    href={`mailto:${lead.email}`}
+                                    className="lead-contact-link email"
+                                    title="Enviar correo"
+                                  >
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                      <rect width="20" height="16" x="2" y="4" rx="2" />
+                                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                                    </svg>
+                                    <span>{lead.email}</span>
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Requerimiento de salud del adulto mayor */}
+                          <div className="lead-message-box">
+                            <span className="lead-message-label">Requerimiento clínico y situación del familiar:</span>
+                            <p className="lead-message-text">"{lead.message}"</p>
+                          </div>
+
+                          {/* Notas Internas de la Administración */}
+                          <div className="lead-notes-area">
+                            {expandedNotesId === lead.id ? (
+                              <div className="lead-notes-editor">
+                                <label className="lead-notes-label">Notas privadas de coordinación:</label>
+                                <textarea
+                                  rows={2}
+                                  placeholder="Ej: Se coordinó con TENS Patricia para iniciar turnos de 12h los martes y jueves..."
+                                  value={tempNotes[lead.id] ?? lead.notes ?? ''}
+                                  onChange={(e) => setTempNotes((prev) => ({ ...prev, [lead.id]: e.target.value }))}
+                                />
+                                <div className="lead-notes-editor-actions">
+                                  <button
+                                    type="button"
+                                    className="btn-save-lead-note"
+                                    onClick={() => handleSaveLeadNote(lead.id)}
+                                  >
+                                    Guardar Nota
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn-cancel-lead-note"
+                                    onClick={() => setExpandedNotesId(null)}
+                                  >
+                                    Cancelar
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div
+                                className="lead-notes-preview"
+                                onClick={() => {
+                                  setTempNotes((prev) => ({ ...prev, [lead.id]: lead.notes || '' }))
+                                  setExpandedNotesId(lead.id)
+                                }}
+                                title="Hacer clic para editar notas internas"
+                              >
+                                <span className="lead-notes-icon">📝</span>
+                                <span className="lead-notes-content">
+                                  {lead.notes ? (
+                                    <strong>Nota de Visalud: {lead.notes}</strong>
+                                  ) : (
+                                    <em className="text-muted">+ Añadir nota interna de coordinación...</em>
+                                  )}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Barra de Acciones Directas */}
+                        <div className="lead-card-footer">
+                          <button
+                            type="button"
+                            className="btn-lead-whatsapp"
+                            onClick={() => handleLeadWhatsAppDirect(lead)}
+                            title="Abrir WhatsApp oficial de Visalud con saludo personalizado"
+                          >
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                            </svg>
+                            <span>WhatsApp Directo</span>
+                          </button>
+
+                          {lead.phone && (
+                            <a
+                              href={`tel:${lead.phone}`}
+                              className="btn-lead-call"
+                              title="Llamar al familiar"
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.5 2 2 0 0 1 3.6 1.32h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6.09 6.09l1.78-1.78a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                              </svg>
+                              <span>Llamar</span>
+                            </a>
+                          )}
+
+                          <button
+                            type="button"
+                            className="btn-lead-delete"
+                            onClick={() => handleDeleteLead(lead.id)}
+                            title="Eliminar esta solicitud"
+                          >
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="3 6 5 6 21 6" />
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            </svg>
+                            <span>Eliminar</span>
+                          </button>
+                        </div>
+                      </article>
+                    )
+                  })
+                )}
               </div>
             </div>
           )}
@@ -1345,6 +2134,135 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`}
                 {isSubmitting ? 'Guardando...' : editingId ? 'Guardar Cambios' : 'Crear Profesional'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL PARA AGREGAR TESTIMONIO MANUAL (ADMIN) */}
+      {isAddTestimonialOpen && (
+        <div className="admin-modal-overlay" onClick={() => setIsAddTestimonialOpen(false)}>
+          <div
+            className="admin-modal-dialog"
+            style={{ maxWidth: '640px' }}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="admin-modal-header">
+              <div className="modal-title-wrap">
+                <span className="modal-badge">Registro Manual de Reseña</span>
+                <h2 className="modal-title">Agregar Testimonio de Familia</h2>
+              </div>
+              <button
+                type="button"
+                className="btn-close-modal"
+                onClick={() => setIsAddTestimonialOpen(false)}
+                aria-label="Cerrar modal"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveManualTestimonial} className="admin-form" style={{ padding: '1.5rem' }}>
+              <div className="form-group-grid">
+                <div className="form-field full-width">
+                  <label>Nombre del familiar o paciente *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej. Carmen Gloria Muñoz"
+                    value={manualTestimonialForm.name}
+                    onChange={(e) => setManualTestimonialForm({ ...manualTestimonialForm, name: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label>Parentesco / Relación</label>
+                  <input
+                    type="text"
+                    placeholder="Ej. Hija de don Fernando (84 años)"
+                    value={manualTestimonialForm.relation}
+                    onChange={(e) => setManualTestimonialForm({ ...manualTestimonialForm, relation: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label>Sector en Osorno</label>
+                  <select
+                    value={manualTestimonialForm.location}
+                    onChange={(e) => setManualTestimonialForm({ ...manualTestimonialForm, location: e.target.value })}
+                  >
+                    <option value="Sector Pilauco, Osorno">Sector Pilauco, Osorno</option>
+                    <option value="Sector Centro, Osorno">Sector Centro, Osorno</option>
+                    <option value="Sector Rahue Alto, Osorno">Sector Rahue Alto, Osorno</option>
+                    <option value="Sector Rahue Bajo, Osorno">Sector Rahue Bajo, Osorno</option>
+                    <option value="Sector Francke, Osorno">Sector Francke, Osorno</option>
+                    <option value="Sector Ovejería, Osorno">Sector Ovejería, Osorno</option>
+                    <option value="Sector Kolbe, Osorno">Sector Kolbe, Osorno</option>
+                    <option value="Alrededores de Osorno">Alrededores de Osorno</option>
+                  </select>
+                </div>
+
+                <div className="form-field">
+                  <label>Modalidad Recibida</label>
+                  <select
+                    value={manualTestimonialForm.service}
+                    onChange={(e) => setManualTestimonialForm({ ...manualTestimonialForm, service: e.target.value })}
+                  >
+                    <option value="Turno Completo (12 hrs) • Cuidado Continuo">Turno Completo (12 hrs)</option>
+                    <option value="Medio Turno (6 hrs) • Aseo y Confort">Medio Turno (6 hrs)</option>
+                    <option value="Vigilia Nocturna (12 hrs) • Supervisión">Vigilia Nocturna (12 hrs)</option>
+                    <option value="Gestión Delegada de Turnos Visalud">Gestión Delegada de Turnos</option>
+                  </select>
+                </div>
+
+                <div className="form-field">
+                  <label>Calificación (Estrellas)</label>
+                  <select
+                    value={manualTestimonialForm.rating}
+                    onChange={(e) => setManualTestimonialForm({ ...manualTestimonialForm, rating: Number(e.target.value) })}
+                  >
+                    <option value={5}>★★★★★ (5 de 5 estrellas)</option>
+                    <option value={4}>★★★★☆ (4 de 5 estrellas)</option>
+                    <option value={3}>★★★☆☆ (3 de 5 estrellas)</option>
+                  </select>
+                </div>
+
+                <div className="form-field full-width">
+                  <label>Enfoque o tema clave (Tag)</label>
+                  <input
+                    type="text"
+                    placeholder="Ej. Cuidado post-operatorio y fármacos"
+                    value={manualTestimonialForm.tag}
+                    onChange={(e) => setManualTestimonialForm({ ...manualTestimonialForm, tag: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-field full-width">
+                  <label>Comentario / Reseña *</label>
+                  <textarea
+                    rows={4}
+                    required
+                    placeholder="Escribe las palabras o experiencia enviadas por la familia (ej. vía WhatsApp)..."
+                    value={manualTestimonialForm.comment}
+                    onChange={(e) => setManualTestimonialForm({ ...manualTestimonialForm, comment: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="modal-actions-footer" style={{ marginTop: '1.25rem' }}>
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={() => setIsAddTestimonialOpen(false)}
+                >
+                  Cancelar
+                </button>
+                <button type="submit" className="btn-save">
+                  Guardar y Publicar en Web
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
