@@ -93,6 +93,8 @@
   background: #ffffff;
   padding: 2px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
 }
 
 .care-calc-title {
@@ -254,6 +256,8 @@
   padding: 4px;
   border: 2px solid var(--calc-primary);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
 }
 
 .bubble-pulse-dot {

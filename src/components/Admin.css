@@ -2871,6 +2871,32 @@
   border-top: 1px solid var(--admin-border);
 }
 
+.btn-lead-derive {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.15rem;
+  background: linear-gradient(135deg, #008d7e 0%, #00685c 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 141, 126, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-lead-derive:hover {
+  background: linear-gradient(135deg, #00a896 0%, #008d7e 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 141, 126, 0.48);
+}
+
+.btn-lead-derive svg {
+  color: #a7f3d0;
+}
+
 .btn-lead-whatsapp {
   display: inline-flex;
   align-items: center;

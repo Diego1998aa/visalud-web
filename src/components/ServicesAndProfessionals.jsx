@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { professionalsService } from '../services/professionalsService.js'
+import { professionalsService, isSubscriptionActive } from '../services/professionalsService.js'
 import { defaultProfessionals } from '../data/defaultProfessionals.js'
 
 // Número oficial de la dueña / administración para coordinación delegada
@@ -151,7 +151,7 @@ export default function ServicesAndProfessionals() {
   // Filtrado de profesionales según el turno/servicio seleccionado y texto de búsqueda
   const filteredProfessionals = useMemo(() => {
     return professionals
-      .filter((pro) => pro.status !== 'inactive')
+      .filter((pro) => isSubscriptionActive(pro))
       .filter((pro) => {
         // Filtrar por modalidad de turno
         let matchesService = true
@@ -210,13 +210,16 @@ export default function ServicesAndProfessionals() {
 
   // Generador de enlace directo a WhatsApp con mensaje contextualizado para TENS
   const buildWhatsAppLink = (pro) => {
-    let modalidadTexto = 'un turno de cuidado'
-    if (selectedService === 'medio-turno') modalidadTexto = 'medio turno (6 horas)'
-    else if (selectedService === 'turno-completo') modalidadTexto = 'turno completo (12 horas)'
-    else if (selectedService === 'noche-vigilia') modalidadTexto = 'turno de vigilia nocturna (12 horas)'
+    let modalidadTexto = 'cuidado de adulto mayor a domicilio'
+    if (selectedService === 'medio-turno') modalidadTexto = 'Medio Turno (6 horas)'
+    else if (selectedService === 'turno-completo') modalidadTexto = 'Turno Completo (12 horas)'
+    else if (selectedService === 'noche-vigilia') modalidadTexto = 'Turno de Vigilia Nocturna (12 horas)'
 
-    const message = `Hola ${pro.name}, te contacto desde Visalud para consultar tu disponibilidad para el cuidado de un adulto mayor a domicilio por ${modalidadTexto} en Osorno. ¿Podemos coordinar?`
-    return `https://wa.me/${pro.whatsapp}?text=${encodeURIComponent(message)}`
+    const rawPhone = (pro.whatsapp || pro.phone || '56984457551').replace(/[^0-9]/g, '')
+    const targetWa = rawPhone.startsWith('56') ? rawPhone : `56${rawPhone}`
+
+    const message = `Hola ${pro.name}, te contacto desde Visalud Osorno.\n\nQuisiera consultar tu disponibilidad para concordar una visita a domicilio para: *${modalidadTexto}*.\n\n¿Podemos coordinar la fecha, horario y detalles del paciente? Muchas gracias.`
+    return `https://wa.me/${targetWa}?text=${encodeURIComponent(message)}`
   }
 
   // Enlace directo a la Administración para coordinar turnos

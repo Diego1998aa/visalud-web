@@ -87,6 +87,8 @@
   width: 24px;
   height: 24px;
   object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
 }
 
 .integrity-tooltip-content {
@@ -215,6 +217,8 @@
   border-radius: 50%;
   object-fit: contain;
   filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.5));
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
   transition: transform 0.3s ease;
 }
 

@@ -27,6 +27,7 @@
   height: 100%;
   overflow: hidden;
   z-index: 1;
+  background-color: #071917;
 }
 
 .hero-bg-slide {
@@ -38,6 +39,7 @@
   visibility: hidden;
   transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.2s;
   overflow: hidden;
+  background: #071917;
 }
 
 .hero-bg-slide.active {
@@ -50,13 +52,18 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(1);
-  transition: transform 7.5s cubic-bezier(0.16, 1, 0.3, 1);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
+  filter: contrast(1.03) saturate(1.06) brightness(0.97);
+  transform: scale(1.005) translateZ(0);
+  transition: transform 7.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
   will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .hero-bg-slide.active .hero-bg-image {
-  transform: scale(1.055);
+  transform: scale(1.025) translateZ(0);
 }
 
 /* Capa de difuminado y viñeta ambiental elegante */
@@ -432,6 +439,50 @@
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--ink);
+}
+
+.hero-seal-interactive {
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.hero-seal-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 141, 126, 0.16);
+  border-color: var(--green);
+}
+
+.crystal-seal-rotator {
+  min-height: 20px;
+  overflow: hidden;
+  margin-top: 0.15rem;
+}
+
+.crystal-seal-comment-anim {
+  font-size: 0.79rem;
+  font-style: italic;
+  color: var(--muted);
+  line-height: 1.35;
+  margin: 0;
+  animation: fadeInComment 0.4s ease forwards;
+}
+
+.crystal-seal-comment-anim strong {
+  font-style: normal;
+  color: var(--green);
+  font-weight: 600;
+}
+
+@keyframes fadeInComment {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ==================== CONTROLES DE CRISTAL FLOTANTES ==================== */
@@ -1755,6 +1806,8 @@
   max-width: 170px;
   object-fit: contain;
   display: block;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
   transition: height 0.3s ease;
 }
 
@@ -3102,11 +3155,16 @@
   height: 100%;
   object-fit: cover;
   object-position: top center;
-  transition: transform 0.5s ease;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
+  filter: contrast(1.02) saturate(1.04);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .pro-card:hover .pro-card-photo {
-  transform: scale(1.05);
+  transform: scale(1.035);
 }
 
 .pro-card-gradient {
@@ -4294,6 +4352,8 @@
   max-width: 160px;
   object-fit: contain;
   display: block;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
 }
 
 .footer-tagline {
@@ -5186,12 +5246,19 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  object-position: center 28%;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
+  filter: contrast(1.02) saturate(1.04);
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
   display: block;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .insta-post-card:hover .insta-post-image {
-  transform: scale(1.05);
+  transform: scale(1.04);
+  filter: contrast(1.04) saturate(1.08);
 }
 
 .insta-media-badge {
@@ -5439,18 +5506,28 @@
 }
 
 .insta-modal-media {
-  background: #0b1120;
+  background: #080f1a;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  position: relative;
+  padding: 0.75rem;
 }
 
 .insta-modal-media img {
-  width: 100%;
-  height: 100%;
+  max-width: 100%;
   max-height: 75vh;
-  object-fit: cover;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  margin: auto;
+  display: block;
+  border-radius: 10px;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
+  filter: contrast(1.02) saturate(1.04);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
 }
 
 .insta-modal-details {

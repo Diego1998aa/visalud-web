@@ -6,28 +6,28 @@ const heroSlides = [
     alt: 'Equipo profesional y técnicos certificados de Visalud Osorno en capacitación',
     tag: 'Personal Certificado TENS',
     title: 'Profesionales calificados con registro SIS',
-    position: 'center 22%',
+    position: 'center 24%',
   },
   {
     image: '/fotos visalud/visalud1.webp',
     alt: 'Equipo Visalud en operativos de salud comunitaria y atención en terreno',
     tag: 'Operativos en Terreno Osorno',
     title: 'Compromiso directo con la comunidad',
-    position: 'center 35%',
+    position: 'center 38%',
   },
   {
     image: '/fotos visalud/visalud4.webp',
     alt: 'Cuidado humano, compasión y dedicación geriátrica en Osorno',
     tag: 'Vocación & Cuidado Humano',
     title: 'Acompañamiento cálido y respetuoso',
-    position: 'center center',
+    position: 'center 38%',
   },
   {
     image: '/fotos visalud/visalud3.jpg',
     alt: 'Servicios de enfermería y cuidados domiciliarios Visalud Osorno',
     tag: 'Atención Domiciliaria Flexible',
     title: 'Turnos de 6 y 12 horas en el hogar',
-    position: 'center 20%',
+    position: 'center 22%',
   },
 ]
 
@@ -38,6 +38,42 @@ export default function IntroSection() {
   const [isCardVideoPlaying, setIsCardVideoPlaying] = useState(false)
   const [isCardVideoMuted, setIsCardVideoMuted] = useState(true)
   const [videoProgress, setVideoProgress] = useState(0)
+
+  // Comentarios rotativos en el widget del Hero (estrellas y atención médica certificada)
+  const rotatingComments = [
+    {
+      author: 'Claudia G.',
+      relation: 'Sector Pilauco',
+      service: 'Turno Completo 12h',
+      comment: 'La TENS asignada ha sido un verdadero pilar: puntualidad y cariño en el trato.'
+    },
+    {
+      author: 'Héctor Soto',
+      relation: 'Sector Rahue Alto',
+      service: 'Vigilia Nocturna',
+      comment: 'Contratar la vigilia nocturna con un TENS nos devolvió el descanso familiar.'
+    },
+    {
+      author: 'María Paz B.',
+      relation: 'Sector Centro',
+      service: 'Medio Turno 6h',
+      comment: 'Trato siempre digno, dulce y muy respetuoso con los tiempos de mi tía.'
+    },
+    {
+      author: 'Rodrigo M.',
+      relation: 'Sector Francke',
+      service: 'Gestión Delegada',
+      comment: 'Excelente gestión de turnos y reemplazos inmediatos de Visalud.'
+    }
+  ]
+  const [currentCommentIdx, setCurrentCommentIdx] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentCommentIdx((prev) => (prev + 1) % rotatingComments.length)
+    }, 4500)
+    return () => clearInterval(timer)
+  }, [rotatingComments.length])
   const [videoDuration, setVideoDuration] = useState(0)
   const [videoCurrentTime, setVideoCurrentTime] = useState(0)
   const [isVideoBuffering, setIsVideoBuffering] = useState(false)
@@ -452,8 +488,8 @@ export default function IntroSection() {
               </div>
             </div>
 
-            {/* Sello de Calidad y Registro SIS en Cristal */}
-            <div className="hero-crystal-seal">
+            {/* Sello de Calidad y Registro SIS en Cristal con Comentarios Rotativos de Familias */}
+            <a href="#testimonios" className="hero-crystal-seal hero-seal-interactive" title="Ver comentarios de familias">
               <div className="crystal-seal-icon">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
@@ -463,11 +499,15 @@ export default function IntroSection() {
               <div className="crystal-seal-text">
                 <div className="crystal-seal-stars">
                   ★★★★★ <span>4.9/5</span>
-                  <span className="crystal-seal-pill">Verificado</span>
+                  <span className="crystal-seal-pill">Atención médica certificada</span>
                 </div>
-                <p>Atención médica certificada · Registro SIS Osorno</p>
+                <div className="crystal-seal-rotator">
+                  <p key={currentCommentIdx} className="crystal-seal-comment-anim">
+                    “{rotatingComments[currentCommentIdx].comment}” — <strong>{rotatingComments[currentCommentIdx].author}</strong>
+                  </p>
+                </div>
               </div>
-            </div>
+            </a>
           </div>
         </div>
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { professionalsService } from '../services/professionalsService.js'
+import { professionalsService, isSubscriptionActive, subscriptionLabel, subscriptionBadgeColor } from '../services/professionalsService.js'
 import { testimonialsService } from '../services/testimonialsService.js'
 import { leadsService } from '../services/leadsService.js'
 import './Admin.css'
@@ -81,6 +81,10 @@ const INITIAL_FORM = {
   bio: '',
   status: 'active',
   order_index: 1,
+  plan_type: 'basico',
+  subscription_status: 'inactivo',
+  subscription_price: 15000,
+  subscription_expires_at: null,
 }
 
 export default function Admin({
@@ -96,7 +100,7 @@ export default function Admin({
   const [searchQuery, setSearchQuery] = useState('')
   const [serviceFilter, setServiceFilter] = useState('all')
   const [isSupabase, setIsSupabase] = useState(false)
-  const [activeTab, setActiveTab] = useState('list') // 'list' | 'testimonials' | 'leads' | 'guide'
+  const [activeTab, setActiveTab] = useState('list') // 'list' | 'suscripciones' | 'testimonials' | 'leads' | 'guide'
 
   // Modal / Form state profesionales
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -336,6 +340,48 @@ export default function Admin({
     window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer')
   }
 
+  // Derivación automatizada de la visita a la profesional activa (TENS Tamara)
+  const handleDeriveLeadToProfessional = async (lead) => {
+    if (lead.status === 'new') {
+      await handleUpdateLeadStatus(lead.id, 'contacted')
+    }
+
+    // Buscar profesional activa (preferir Tamara o la primera activa)
+    const activePro = professionals.find((p) => isSubscriptionActive(p) && p.name.toLowerCase().includes('tamara')) 
+      || professionals.find((p) => isSubscriptionActive(p)) 
+      || { name: 'TENS Tamara Soledad Riquelme', whatsapp: '56984457551', phone: '+56 9 8445 7551' }
+
+    const cleanProPhone = (activePro.whatsapp || activePro.phone || '56984457551').replace(/[^0-9]/g, '')
+    const targetProPhone = cleanProPhone.startsWith('56') ? cleanProPhone : `56${cleanProPhone}`
+
+    // Teléfono del familiar para que la profesional pueda pulsar y abrir WhatsApp
+    const cleanFamPhone = (lead.phone || '').replace(/[^0-9]/g, '')
+    const targetFamPhone = cleanFamPhone.startsWith('56') ? cleanFamPhone : (cleanFamPhone ? `56${cleanFamPhone}` : '')
+    const waFamDirectLink = targetFamPhone ? `https://wa.me/${targetFamPhone}` : 'No proporcionado'
+
+    const mensaje = 
+`🏥 *NUEVA SOLICITUD DE VISITA A DOMICILIO — VISALUD OSORNO*
+
+Estimada ${activePro.name}, te derivamos una solicitud de atención para concordar visita:
+
+👤 *Paciente / Familiar:* ${lead.name || 'Familiar solicitante'}
+📞 *Teléfono de contacto:* ${lead.phone || 'Sin número registrado'}
+📍 *Sector / Dirección:* ${lead.sector || 'Sector en Osorno'}
+⏱️ *Modalidad solicitada:* ${lead.subject || 'Medio Turno (6 hrs)'}
+🩺 *Condición y requerimientos:* ${lead.message || 'Sin observaciones'}
+🗓️ *Fecha / Horario estimado:* Por coordinar
+
+👉 Puedes contactar directamente a la familia pulsando aquí: ${waFamDirectLink}`
+
+    // Registrar nota de trazabilidad en el mini-CRM
+    const derivNote = `Derivado a ${activePro.name} (+${targetProPhone}) para concordar visita.`
+    const updatedNotes = lead.notes ? `${lead.notes} | ${derivNote}` : derivNote
+    await handleSaveLeadNote(lead.id, updatedNotes)
+
+    window.open(`https://wa.me/${targetProPhone}?text=${encodeURIComponent(mensaje)}`, '_blank', 'noopener,noreferrer')
+    showToast(`Solicitud de ${lead.name} enviada por WhatsApp a ${activePro.name}`)
+  }
+
   const newLeadsCount = useMemo(() => leads.filter((l) => l.status === 'new').length, [leads])
   const contactedLeadsCount = useMemo(() => leads.filter((l) => l.status === 'contacted').length, [leads])
   const scheduledLeadsCount = useMemo(() => leads.filter((l) => l.status === 'scheduled').length, [leads])
@@ -378,6 +424,22 @@ export default function Admin({
     const active = professionals.filter((p) => p.status === 'active').length
     const servicesCount = new Set(professionals.map((p) => p.serviceId)).size
     return { total, active, servicesCount }
+  }, [professionals])
+
+  // Métricas de suscripciones
+  const subsStats = useMemo(() => {
+    const withSub = professionals.filter((p) => p.subscription_status)
+    const activos = withSub.filter((p) => isSubscriptionActive(p)).length
+    const vencidos = withSub.filter((p) => p.subscription_status === 'vencido').length
+    const porVencer = withSub.filter((p) => {
+      if (!p.subscription_expires_at) return false
+      const days = Math.ceil((new Date(p.subscription_expires_at) - new Date()) / 86400000)
+      return days >= 0 && days <= 7
+    }).length
+    const ingresoMensual = withSub
+      .filter((p) => isSubscriptionActive(p))
+      .reduce((sum, p) => sum + (p.subscription_price || 15000), 0)
+    return { activos, vencidos, porVencer, ingresoMensual }
   }, [professionals])
 
   // Procesar archivo de imagen adjunta
@@ -645,6 +707,27 @@ export default function Admin({
                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
               <span>Profesionales Activos ({professionals.length})</span>
+            </button>
+
+            {/* TAB SUSCRIPCIONES */}
+            <button
+              type="button"
+              className={`admin-tab-btn ${activeTab === 'suscripciones' ? 'active' : ''}`}
+              onClick={() => setActiveTab('suscripciones')}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="5" width="20" height="14" rx="2" />
+                <line x1="2" y1="10" x2="22" y2="10" />
+              </svg>
+              <span>Suscripciones ({subsStats.activos} activas)</span>
+              {subsStats.porVencer > 0 && (
+                <span className="tab-pending-badge tab-badge-urgent" title={`${subsStats.porVencer} suscripción(es) vencen en menos de 7 días`}>
+                  {subsStats.porVencer} por vencer
+                </span>
+              )}
+              {subsStats.vencidos > 0 && (
+                <span className="tab-alert-dot" title={`${subsStats.vencidos} suscripción(es) vencidas`} />
+              )}
             </button>
 
             <button
@@ -981,6 +1064,170 @@ export default function Admin({
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* TAB: SUSCRIPCIONES */}
+          {activeTab === 'suscripciones' && (
+            <div className="admin-content-section">
+              {/* Resumen financiero */}
+              <div className="admin-stats-grid">
+                <div className="admin-stat-card stat-active">
+                  <div className="stat-icon-wrap">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                  </div>
+                  <div className="stat-content">
+                    <span className="stat-label">Suscripciones Activas</span>
+                    <strong className="stat-value">{subsStats.activos}</strong>
+                    <span className="stat-subtext">de {professionals.length} profesionales</span>
+                  </div>
+                </div>
+
+                <div className="admin-stat-card stat-total">
+                  <div className="stat-icon-wrap">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+                    </svg>
+                  </div>
+                  <div className="stat-content">
+                    <span className="stat-label">Ingreso Mensual Est.</span>
+                    <strong className="stat-value">${subsStats.ingresoMensual.toLocaleString('es-CL')}</strong>
+                    <span className="stat-subtext">de suscripciones vigentes</span>
+                  </div>
+                </div>
+
+                <div className={`admin-stat-card ${subsStats.porVencer > 0 ? 'stat-warning' : 'stat-sync'}`}>
+                  <div className="stat-icon-wrap">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                  </div>
+                  <div className="stat-content">
+                    <span className="stat-label">Vencen Pronto</span>
+                    <strong className="stat-value">{subsStats.porVencer}</strong>
+                    <span className="stat-subtext">en los próximos 7 días</span>
+                  </div>
+                </div>
+
+                <div className={`admin-stat-card ${subsStats.vencidos > 0 ? 'stat-error' : 'stat-sync'}`}>
+                  <div className="stat-icon-wrap">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+                    </svg>
+                  </div>
+                  <div className="stat-content">
+                    <span className="stat-label">Vencidas / Inactivas</span>
+                    <strong className="stat-value">{subsStats.vencidos}</strong>
+                    <span className="stat-subtext">ocultos en la web</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Instrucción de uso */}
+              <div className="admin-controls-card" style={{marginBottom: '1rem', padding: '1rem 1.25rem', background: 'var(--admin-surface, #f0faf9)', borderLeft: '3px solid var(--color-primary, #008d7e)'}}>
+                <p style={{margin: 0, fontSize: '0.875rem', color: 'var(--admin-text-muted, #555)'}}>
+                  <strong>¿Cómo funciona?</strong> Cuando un profesional paga (transferencia), haz clic en <strong>Renovar</strong> para activar o extender su suscripción 1 mes. Si no paga, usa <strong>Vencer</strong> y desaparece de la web automáticamente.
+                </p>
+              </div>
+
+              {/* Tabla de suscripciones */}
+              <div className="admin-pros-grid" style={{display: 'flex', flexDirection: 'column', gap: '0.75rem'}}>
+                {professionals.map((pro) => {
+                  const active = isSubscriptionActive(pro)
+                  const label = subscriptionLabel(pro)
+                  const color = subscriptionBadgeColor(pro)
+                  const expiryDate = pro.subscription_expires_at
+                    ? new Date(pro.subscription_expires_at).toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' })
+                    : '—'
+                  const badgeStyle = {
+                    active: { background: '#d1fae5', color: '#065f46' },
+                    destacado: { background: '#dbeafe', color: '#1e40af' },
+                    trial: { background: '#fef9c3', color: '#854d0e' },
+                    warning: { background: '#fff3cd', color: '#7c5a00' },
+                    expired: { background: '#fee2e2', color: '#991b1b' },
+                    inactive: { background: '#f3f4f6', color: '#6b7280' },
+                  }[color] || { background: '#f3f4f6', color: '#6b7280' }
+
+                  return (
+                    <div key={pro.id} style={{
+                      display: 'flex', alignItems: 'center', gap: '1rem',
+                      padding: '0.875rem 1.25rem', borderRadius: '10px',
+                      background: 'var(--admin-card-bg, #fff)',
+                      border: `1px solid ${active ? 'var(--admin-border, #e2e8f0)' : '#fecaca'}`,
+                      boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                      flexWrap: 'wrap',
+                    }}>
+                      {/* Avatar */}
+                      {pro.image ? (
+                        <img src={pro.image} alt={pro.name} style={{width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', flexShrink: 0}} />
+                      ) : (
+                        <div style={{width: 44, height: 44, borderRadius: '50%', background: '#e6f5f3', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0}}>
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#008d7e" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                      )}
+
+                      {/* Info */}
+                      <div style={{flex: 1, minWidth: 0}}>
+                        <div style={{fontWeight: 600, fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{pro.name}</div>
+                        <div style={{fontSize: '0.78rem', color: 'var(--admin-text-muted, #666)'}}>
+                          {pro.specialty || pro.serviceName} · Vence: {expiryDate}
+                        </div>
+                      </div>
+
+                      {/* Badge estado */}
+                      <span style={{...badgeStyle, padding: '3px 10px', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0}}>
+                        {label}
+                      </span>
+
+                      {/* Precio */}
+                      <span style={{fontSize: '0.85rem', fontWeight: 600, color: 'var(--admin-text, #222)', whiteSpace: 'nowrap', flexShrink: 0}}>
+                        ${(pro.subscription_price || 15000).toLocaleString('es-CL')}/mes
+                      </span>
+
+                      {/* Acciones */}
+                      <div style={{display: 'flex', gap: '0.5rem', flexShrink: 0}}>
+                        <select
+                          defaultValue={pro.plan_type || 'basico'}
+                          id={`plan-select-${pro.id}`}
+                          style={{fontSize: '0.8rem', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--admin-border, #d1d5db)', background: 'var(--admin-surface, #f9fafb)'}}
+                        >
+                          <option value="basico">Básico $15.000</option>
+                          <option value="destacado">Destacado $25.000</option>
+                        </select>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const sel = document.getElementById(`plan-select-${pro.id}`)
+                            await professionalsService.updateSubscription(pro.id, sel?.value || 'basico', 1)
+                            showToast(`✅ Suscripción de ${pro.name} renovada por 1 mes`)
+                            loadData()
+                          }}
+                          style={{padding: '4px 12px', borderRadius: '6px', background: '#008d7e', color: '#fff', border: 'none', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer'}}
+                        >
+                          Renovar
+                        </button>
+                        {active && (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              if (window.confirm(`¿Marcar como vencida la suscripción de ${pro.name}? Dejará de aparecer en la web.`)) {
+                                await professionalsService.expireSubscription(pro.id)
+                                showToast(`Suscripción de ${pro.name} marcada como vencida.`, 'info')
+                                loadData()
+                              }
+                            }}
+                            style={{padding: '4px 12px', borderRadius: '6px', background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer'}}
+                          >
+                            Vencer
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           )}
 
@@ -1627,6 +1874,19 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`}
 
                         {/* Barra de Acciones Directas */}
                         <div className="lead-card-footer">
+                          <button
+                            type="button"
+                            className="btn-lead-derive"
+                            onClick={() => handleDeriveLeadToProfessional(lead)}
+                            title="Derivar automáticamente la ficha de visita a TENS Tamara por WhatsApp"
+                          >
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="m22 2-7 20-4-9-9-4Z" />
+                              <path d="M22 2 11 13" />
+                            </svg>
+                            <span>📲 Derivar a TENS Tamara (Visita)</span>
+                          </button>
+
                           <button
                             type="button"
                             className="btn-lead-whatsapp"

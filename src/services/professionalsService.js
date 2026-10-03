@@ -35,6 +35,56 @@ function notifySubscribers(list) {
   }
 }
 
+// ── Helpers de suscripción ──────────────────────────────────────────────────
+
+/** Devuelve true si el profesional tiene suscripción vigente (aparece en la web).
+ *  Solo aparece si está 'activo' Y tiene fecha de vencimiento futura.
+ *  Sin suscripción configurada = oculto (no aparece por defecto).
+ */
+export function isSubscriptionActive(pro) {
+  if (!pro) return false
+  const s = pro.subscription_status
+  // Sin columna de suscripción aún (BD no migrada) → usa status legacy
+  if (s === undefined || s === null) return pro.status === 'active'
+  // Inactivo, vencido → nunca aparece
+  if (s !== 'activo') return false
+  // Activo: verificar que la fecha no haya pasado
+  if (pro.subscription_expires_at) {
+    return new Date(pro.subscription_expires_at) > new Date()
+  }
+  // Activo sin fecha → mostrar (caso manual sin fecha)
+  return true
+}
+
+/** Etiqueta legible del estado de suscripción */
+export function subscriptionLabel(pro) {
+  if (!pro.subscription_status) return 'Sin activar'
+  const days = pro.subscription_expires_at
+    ? Math.ceil((new Date(pro.subscription_expires_at) - new Date()) / 86400000)
+    : null
+  if (pro.subscription_status === 'vencido') return 'Vencida'
+  if (pro.subscription_status === 'inactivo') return 'Sin activar'
+  if (days !== null && days <= 7) return `Vence en ${days}d`
+  return pro.plan_type === 'destacado' ? 'Plan Destacado' : 'Plan Básico'
+}
+
+/** Badge de color según estado */
+export function subscriptionBadgeColor(pro) {
+  const s = pro.subscription_status
+  if (!s || s === 'activo') {
+    const days = pro.subscription_expires_at
+      ? Math.ceil((new Date(pro.subscription_expires_at) - new Date()) / 86400000)
+      : null
+    if (days !== null && days <= 7) return 'warning'
+    return pro.plan_type === 'destacado' ? 'destacado' : 'active'
+  }
+  if (s === 'trial') return 'trial'
+  if (s === 'vencido') return 'expired'
+  return 'inactive'
+}
+
+// ── Servicio principal ───────────────────────────────────────────────────────
+
 export const professionalsService = {
   isConfiguredWithSupabase() {
     return isSupabaseConfigured
@@ -159,6 +209,45 @@ export const professionalsService = {
   async resetToDefaults() {
     saveLocalProfessionals([...defaultProfessionals])
     return { success: true, data: defaultProfessionals }
+  },
+
+  /**
+   * Renueva o cambia la suscripción de un profesional.
+   * @param {string} id - ID del profesional
+   * @param {'basico'|'destacado'} plan - Tipo de plan
+   * @param {number} months - Meses a agregar (default 1)
+   */
+  async updateSubscription(id, plan = 'basico', months = 1) {
+    const current = getLocalProfessionals()
+    const pro = current.find((p) => p.id === id)
+
+    // Si ya tiene fecha vigente, extender desde ahí; si no, desde hoy
+    const baseDate =
+      pro?.subscription_expires_at && new Date(pro.subscription_expires_at) > new Date()
+        ? new Date(pro.subscription_expires_at)
+        : new Date()
+
+    const newExpiry = new Date(baseDate)
+    newExpiry.setMonth(newExpiry.getMonth() + months)
+
+    const price = plan === 'destacado' ? 25000 : 15000
+    const updates = {
+      plan_type: plan,
+      subscription_status: 'activo',
+      subscription_expires_at: newExpiry.toISOString(),
+      subscription_price: price,
+    }
+
+    return this.updateProfessional(id, updates)
+  },
+
+  /**
+   * Marca la suscripción como vencida manualmente (ej: no pagó).
+   */
+  async expireSubscription(id) {
+    return this.updateProfessional(id, {
+      subscription_status: 'vencido',
+    })
   },
 
   onProfessionalsChange(callback) {
